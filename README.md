@@ -2,12 +2,6 @@
 
 > Real-time financial fraud detection platform — ML anomaly scoring, rule engine, OFAC sanctions screening, live monitoring, and RAG-powered AI assistant.
 
-![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)
-![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat&logo=flask&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat)
-![Status](https://img.shields.io/badge/Status-Active-22c55e?style=flat)
-
 ---
 
 ## Overview
