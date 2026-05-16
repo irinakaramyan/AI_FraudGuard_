@@ -326,7 +326,7 @@ Admin accounts support TOTP 2FA (RFC 6238 — Google Authenticator / Authy compa
 
 ## API Reference
 
-All endpoints require `Authorization: Bearer <JWT>`. Admin-only routes are marked 🔒.
+All endpoints require `Authorization: Bearer <JWT>`. Admin-only routes are marked.
 
 ### Authentication
 | Method | Path | Description |
@@ -359,7 +359,7 @@ All endpoints require `Authorization: Bearer <JWT>`. Admin-only routes are marke
 | GET | `/api/dashboard/stats` | KPI aggregations |
 | GET | `/api/dashboard/trend` | 7-day transaction trend |
 | GET | `/api/reports/export` | CSV or JSON export (up to 10,000 rows) |
-| GET | `/api/reports/compliance` | 🔒 CTR, SAR, and OFAC compliance metrics |
+| GET | `/api/reports/compliance` | CTR, SAR, and OFAC compliance metrics |
 
 ### Customers
 | Method | Path | Description |
@@ -372,7 +372,7 @@ All endpoints require `Authorization: Bearer <JWT>`. Admin-only routes are marke
 |---|---|---|
 | GET | `/api/compliance/ofac/search` | Fuzzy SDN name search |
 | GET | `/api/compliance/rules` | Active detection rules |
-| PUT | `/api/compliance/rules/<id>` | 🔒 Update rule threshold or toggle active state |
+| PUT | `/api/compliance/rules/<id>` | Update rule threshold or toggle active state |
 
 ### Data Ingestion
 | Method | Path | Description |
@@ -392,9 +392,9 @@ All endpoints require `Authorization: Bearer <JWT>`. Admin-only routes are marke
 | GET | `/api/monitor/events` | Recent monitoring events |
 | GET | `/api/monitor/network` | Device/IP sharing analysis |
 | GET | `/api/monitor/thresholds` | Active threshold configuration |
-| PUT | `/api/monitor/thresholds` | 🔒 Update thresholds at runtime |
+| PUT | `/api/monitor/thresholds` | Update thresholds at runtime |
 | GET | `/api/monitor/customer/<id>` | Per-customer velocity stats |
-| POST | `/api/monitor/reset` | 🔒 Reset in-memory windows |
+| POST | `/api/monitor/reset` | Reset in-memory windows |
 
 ---
 
@@ -415,9 +415,9 @@ Full project documentation is in the `docs/` directory:
 | Document | Contents |
 |---|---|
 | `system_architecture.md` | System Architecture Document (SAD) |
-| `requirements.md` | Software Requirements Specification (IEEE 830) |
+| `requirements.md` | Software Requirements Specification |
 | `sdlc.md` | SDLC — Agile Scrum methodology |
-| `use_cases.md` | Fully-dressed use cases (Cockburn style) |
+| `use_cases.md` | Fully-dressed use cases |
 | `user_stories.md` | User stories with acceptance criteria |
 
 ---
