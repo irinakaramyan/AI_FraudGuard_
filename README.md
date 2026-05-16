@@ -1,90 +1,81 @@
-# FraudGuard AI — Intelligent Fraud Detection System
+# FraudGuard AI
 
-A full-stack, production-grade financial fraud detection platform combining **machine learning anomaly detection**, a **rule-based engine**, **OFAC sanctions screening**, **real-time transaction monitoring**, and a **RAG-powered AI assistant** — built as a diploma-level capstone project.
+> Real-time financial fraud detection platform — ML anomaly scoring, rule engine, OFAC sanctions screening, live monitoring, and RAG-powered AI assistant.
+
+![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat&logo=flask&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=flat&logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-22c55e?style=flat)
+![Status](https://img.shields.io/badge/Status-Active-22c55e?style=flat)
 
 ---
 
-## Features
+## Overview
 
-### Core Fraud Detection
-- **Isolation Forest ML model** — 14-dimensional feature vector, unsupervised anomaly scoring
-- **Rule-based engine** — configurable rules: HIGH_AMOUNT, HIGH_FREQUENCY, HIGH_RISK_COUNTRY, RAPID_SUCCESSION, NEW_DEVICE, ROUND_AMOUNT
-- **Weighted combined score** — rule score (40%) + ML score (60%)
-- **Three-tier disposition** — `approved` / `flagged` / `blocked`
-- **Age restriction compliance** — hard-blocks transactions for customers under 18 or over 100
+FraudGuard AI is a modular, production-grade fraud detection system built on a Flask application factory architecture. Every transaction submitted to the platform passes through a four-stage pipeline:
 
-### OFAC Sanctions Screening
-- Full US Treasury SDN (Specially Designated Nationals) list integration
-- **Fuzzy name matching** using Levenshtein distance (configurable threshold, default ≥ 0.80)
-- **Daily automatic refresh** at 02:00 UTC via APScheduler
-- **Fail-closed policy** — service unavailable → transaction blocked (never fails open)
-- Searchable sanctions list with type, programme, and remarks
+```
+Transaction → Compliance Pre-check → Rule Engine → ML Scorer → Disposition
+                    (OFAC + age)      (6 rules)   (Isolation      (approved /
+                                                    Forest)        flagged /
+                                                                   blocked)
+```
 
-### Data Ingestion & Preprocessing
-- Structured preprocessing pipeline for transactions, customers, and devices
-- **PII masking** — email addresses, phone numbers, and IP last octet masked in logs
-- **Device fingerprinting** — SHA-256 hash of raw device identifiers (GDPR-compliant)
-- **Structuring detection** — flags transactions in the $9,500–$9,999 range (CTR avoidance)
-- Field derivation: hour-of-day, day-of-week, is_weekend, amount_magnitude
-- Batch ingestion endpoint (up to 500 records) with per-record validation and error reporting
-- Data quality report: field completeness, rejection reasons, normalization stats
-- Dry-run preview endpoint — validate payload without touching the database
+The combined risk score is a weighted blend of rule-based scoring (40%) and ML anomaly scoring (60%), evaluated against configurable thresholds in under 3 seconds.
 
-### Real-Time Transaction Monitoring
-- **Sliding window counters** (1-minute, 5-minute, 1-hour) per customer — thread-safe, in-memory
-- **Velocity threshold engine** — 12 configurable thresholds evaluated after every transaction
-- **Network analysis** — device-to-customer and IP-to-customer relationship graphs for fraud ring detection
-- **Server-Sent Events (SSE) stream** — live push to browser every 3 seconds, no polling needed
-- **System-wide alerts** — block rate spike, transaction rate surge, shared device/IP detection
-- Admin threshold editor — update limits at runtime without restart
+---
 
-### Interactive Live Demo
-- Pre-built scenarios: High-Amount Wire, Velocity Burst, OFAC Block, Age Restriction, Normal Purchase
-- Loads real customer IDs from the database automatically — no hardcoded test data
-- Full pipeline visualization: compliance stage → rule engine → ML scoring → disposition
-- Score bars for rule score, ML score, and combined score with colour-coded thresholds
-- Shows rule violations with severity and description
+## Key Capabilities
 
-### AI Assistant (RAG-Powered)
-- Powered by **Groq (Llama 3.3 70B)** — free tier, 14,400 req/day
-- Fallback to **Anthropic Claude** (paid)
-- **Retrieval-Augmented Generation (RAG)** — project documentation indexed at startup; relevant context injected into every query using Jaccard similarity
-- Multi-turn conversation with full context history (capped at 20 turns)
-- Expert fraud-domain system prompt: AML, KYC, PCI DSS, SAR thresholds, OFAC procedures
+| Capability | Implementation |
+|---|---|
+| ML anomaly detection | Isolation Forest · 14-feature vector · unsupervised |
+| Rule engine | 6 configurable rules · weighted scoring · runtime-editable |
+| Sanctions screening | US Treasury OFAC SDN list · fuzzy Levenshtein matching (≥0.80) |
+| Real-time monitoring | Sliding windows (1min/5min/1hr) · SSE push · threshold engine |
+| AI assistant | RAG + Groq Llama 3.3 70B · fraud-domain system prompt |
+| Authentication | JWT · TOTP 2FA · brute-force lockout · RBAC |
+| Data ingestion | PII masking · SHA-256 device fingerprinting · batch (500 records) |
+| Reporting | CSV/JSON export · compliance report · append-only audit trail |
 
-### Security
-- **JWT authentication** with 1-hour token expiry
-- **TOTP Two-Factor Authentication** for admin accounts (Google Authenticator / Authy compatible)
-- **Brute-force lockout** — 5 failed attempts → 15-minute lockout per IP+username
-- **Role-based access control** — admin and analyst roles enforced at both API and UI levels
-- **SQL injection prevention** via `sanitize_like()` on all ILIKE queries
-- **Security headers** on every response: CSP, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy
-- **CORS lockdown** — configurable origin whitelist, never wildcard
-- **Generic error messages** — no username enumeration, no stack trace leakage
-- **Input sanitisation** — all string inputs truncated and stripped
-- **CSV formula injection prevention** — cells starting with `=`, `+`, `-`, `@` are prefixed with `'`
+---
 
-### Dashboard & Analytics
-- Real-time KPI cards: total transactions, fraud rate, open alerts, revenue at risk, customer count
-- 7-day transaction trend chart (Chart.js, self-hosted)
-- Risk distribution pie chart
-- Alert type breakdown
+## Architecture
 
-### Transaction Management
-- Advanced search and filter: name, amount range, country, status, risk level
-- Click-through transaction detail modal with full risk score breakdown
-- Mark transactions as legitimate or confirm fraud (analyst review)
-- Paginated, sortable transaction list
-
-### Customer Management
-- Customer risk profiles with age verification and OFAC match flag
-- Risk level automatically updated after each transaction
-- Transaction history per customer with audit trail
-
-### Compliance & Reporting
-- CSV and JSON export for transactions and alerts (up to 10,000 rows)
-- Compliance metrics report: CTR candidates (≥$10,000), OFAC-flagged accounts, SAR candidates
-- Audit log — append-only record of all analyst and admin actions
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                          CLIENT TIER                            │
+│   Vanilla JS SPA · Chart.js · 10 views · no build step         │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │  HTTPS — JWT Bearer
+                            ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       APPLICATION TIER                          │
+│   Flask (create_app) — 10 Blueprints                           │
+│                                                                 │
+│   /api/auth          JWT login · TOTP 2FA · lockout            │
+│   /api/transactions  Submit · query · analyst review           │
+│   /api/alerts        Fraud alert lifecycle                      │
+│   /api/dashboard     KPI aggregations · chart data             │
+│   /api/customers     Risk profiles · transaction history        │
+│   /api/assistant     RAG chat — Groq / Anthropic               │
+│   /api/compliance    OFAC SDN search · rule management         │
+│   /api/reports       CSV/JSON export · compliance metrics       │
+│   /api/ingest        Preprocessing · batch ingestion           │
+│   /api/monitor       SSE stream · sliding windows · network    │
+│                                                                 │
+│   APScheduler — OFAC SDN refresh daily at 02:00 UTC           │
+└───────────────────────────┬─────────────────────────────────────┘
+                            │
+              ┌─────────────┴──────────────┐
+              ▼                            ▼
+   ┌──────────────────┐       ┌────────────────────────┐
+   │   MySQL 8.0      │       │   External Services     │
+   │   SQLAlchemy ORM │       │   US Treasury OFAC feed │
+   │   In-memory      │       │   Groq API (free tier)  │
+   │   sliding windows│       │   Anthropic Claude API  │
+   └──────────────────┘       └────────────────────────┘
+```
 
 ---
 
@@ -92,63 +83,16 @@ A full-stack, production-grade financial fraud detection platform combining **ma
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | Vanilla JS (ES2022), HTML5, CSS3 — SPA architecture, no build step |
-| **Backend** | Python 3.11+, Flask 3.0, Flask-JWT-Extended |
-| **ORM** | SQLAlchemy 2.0, PyMySQL |
-| **Database** | MySQL 8.0 |
-| **ML Model** | scikit-learn 1.5 (Isolation Forest), NumPy, pandas, scipy, joblib |
-| **2FA** | PyOTP (TOTP/RFC 6238), qrcode + Pillow |
-| **AI Assistant** | Groq SDK (Llama 3.3 70B) / Anthropic SDK (Claude) + custom RAG engine |
-| **Streaming** | Server-Sent Events (SSE) via Flask `Response(stream_with_context)` |
-| **Scheduler** | APScheduler 3.10 |
-| **Security** | Flask-CORS, Flask-Limiter, Werkzeug |
-| **Charts** | Chart.js 4.4 (self-hosted) |
-
----
-
-## Architecture
-
-FraudGuard AI is a **modular monolith** using the Flask application factory pattern. It is composed of three tiers:
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│                         CLIENT TIER                            │
-│  Browser SPA (Vanilla JS + Chart.js)                           │
-│  Views: Dashboard · Transactions · Alerts · Customers ·        │
-│         OFAC · AI Assistant · Live Demo · Live Monitor ·       │
-│         Reports · User Mgmt · Detection Rules                  │
-└──────────────────────────┬─────────────────────────────────────┘
-                           │ HTTPS (JWT Bearer token)
-                           ▼
-┌────────────────────────────────────────────────────────────────┐
-│                      APPLICATION TIER                          │
-│  Flask (create_app factory) — 10 Blueprints                    │
-│  ├── /api/auth/           Authentication + 2FA                 │
-│  ├── /api/transactions/   Transaction CRUD + fraud trigger     │
-│  ├── /api/alerts/         Alert lifecycle management           │
-│  ├── /api/dashboard/      KPI aggregations + charts            │
-│  ├── /api/customers/      Customer profiles                    │
-│  ├── /api/assistant/      RAG AI chat                          │
-│  ├── /api/compliance/     OFAC SDN search + screening          │
-│  ├── /api/reports/        CSV/JSON export + compliance         │
-│  ├── /api/ingest/         Data ingestion & preprocessing       │
-│  └── /api/monitor/        Real-time monitoring + SSE stream    │
-│                                                                │
-│  Background Thread (APScheduler)                               │
-│  └── OFAC SDN refresh at 02:00 UTC daily                      │
-└──────────────────────────┬─────────────────────────────────────┘
-                           │
-                           ▼
-┌──────────────────────────┐    ┌──────────────────────────────┐
-│        DATA TIER         │    │       EXTERNAL SERVICES      │
-│  MySQL 8.0               │    │  US Treasury OFAC SDN feed   │
-│  + In-memory sliding     │    │  Groq API (Llama 3.3 70B)    │
-│    window counters        │    │  Anthropic API (Claude)      │
-│  + In-memory RAG index   │    │  Google Authenticator (TOTP) │
-└──────────────────────────┘    └──────────────────────────────┘
-```
-
-Full architecture documentation is in [`docs/system_architecture.md`](docs/system_architecture.md).
+| Frontend | Vanilla JS (ES2022), HTML5, CSS3 — SPA, no build toolchain |
+| Backend | Python 3.11+, Flask 3.0, Flask-JWT-Extended |
+| ORM / DB | SQLAlchemy 2.0, PyMySQL, MySQL 8.0 |
+| ML | scikit-learn 1.5 (Isolation Forest), NumPy, pandas, joblib |
+| AI | Groq SDK (Llama 3.3 70B) · Anthropic SDK · custom Jaccard RAG |
+| 2FA | PyOTP (RFC 6238 TOTP), qrcode, Pillow |
+| Streaming | Server-Sent Events via Flask `stream_with_context` |
+| Scheduler | APScheduler 3.10 |
+| Security | Flask-CORS, Flask-Limiter, Werkzeug |
+| Charts | Chart.js 4.4 (self-hosted, no CDN) |
 
 ---
 
@@ -157,74 +101,72 @@ Full architecture documentation is in [`docs/system_architecture.md`](docs/syste
 ```
 AI_FD/
 ├── app/
-│   ├── api/                      # Flask Blueprints — REST endpoints
+│   ├── api/                      # REST blueprints
 │   │   ├── auth.py               # Login, JWT, TOTP 2FA
-│   │   ├── transactions.py       # Transaction CRUD + fraud trigger
-│   │   ├── alerts.py             # Fraud alert management
-│   │   ├── dashboard.py          # KPI aggregations + charts
+│   │   ├── transactions.py       # Transaction CRUD + fraud pipeline trigger
+│   │   ├── alerts.py             # Alert lifecycle
+│   │   ├── dashboard.py          # KPI + chart aggregations
 │   │   ├── customers.py          # Customer profiles
-│   │   ├── assistant.py          # RAG AI chat (Groq / Anthropic)
-│   │   ├── compliance.py         # Detection rules CRUD + OFAC search
-│   │   ├── reports.py            # CSV/JSON exports + compliance report
-│   │   ├── ingestion.py          # Data ingestion & preprocessing API
-│   │   └── monitoring.py         # Real-time monitoring + SSE stream
+│   │   ├── assistant.py          # RAG AI chat
+│   │   ├── compliance.py         # OFAC search + rule CRUD
+│   │   ├── reports.py            # CSV/JSON export + compliance report
+│   │   ├── ingestion.py          # Ingestion + preprocessing API
+│   │   └── monitoring.py         # Real-time monitoring + SSE
 │   ├── models/
 │   │   └── models.py             # All SQLAlchemy ORM models
 │   ├── services/
-│   │   ├── fraud_detector.py     # Core fraud detection orchestrator
-│   │   ├── rule_engine.py        # Configurable rule-based scorer
-│   │   ├── ml_service.py         # Isolation Forest ML scorer
-│   │   ├── ofac_service.py       # OFAC SDN loading + fuzzy matching
+│   │   ├── fraud_detector.py     # Detection orchestrator
+│   │   ├── rule_engine.py        # Configurable rule scorer
+│   │   ├── ml_service.py         # Isolation Forest scorer
+│   │   ├── ofac_service.py       # SDN loading + fuzzy matching
 │   │   ├── ingestion_service.py  # PII masking, normalisation, fingerprinting
-│   │   ├── monitoring_service.py # Sliding windows, thresholds, network graph
-│   │   ├── rag_service.py        # Keyword RAG engine (Jaccard similarity)
+│   │   ├── monitoring_service.py # Sliding windows, threshold engine, network graph
+│   │   ├── rag_service.py        # Jaccard RAG engine
 │   │   ├── audit_service.py      # Append-only audit trail
-│   │   ├── risk_analyzer.py      # Advanced analytics + portfolio risk
-│   │   └── notification_service.py # In-app notifications + SLA escalation
+│   │   ├── risk_analyzer.py      # Portfolio risk analytics
+│   │   └── notification_service.py
 │   ├── tasks/
-│   │   └── daily_updater.py      # APScheduler job definitions
+│   │   └── daily_updater.py      # APScheduler jobs
 │   ├── utils/
 │   │   └── security.py           # JWT guards, rate limiter, sanitisers
 │   ├── static/
-│   │   ├── css/style.css         # Full application stylesheet
-│   │   ├── js/app.js             # SPA frontend (2,200+ lines)
-│   │   └── js/chart.umd.min.js   # Chart.js (self-hosted)
+│   │   ├── css/style.css
+│   │   ├── js/app.js             # SPA frontend (~2,400 lines)
+│   │   └── js/chart.umd.min.js  # Chart.js (self-hosted)
 │   ├── templates/
-│   │   └── index.html            # SPA HTML shell (Jinja2)
-│   └── __init__.py               # Application factory (create_app)
-├── ml/                           # ML model training scripts
-├── docs/
-│   ├── requirements.md           # Software Requirements Specification (IEEE 830)
-│   ├── system_architecture.md    # System Architecture Document (SAD)
-│   ├── sdlc.md                   # Software Development Life Cycle (Agile Scrum)
-│   ├── use_cases.md              # Fully-Dressed Use Cases (Cockburn Style)
-│   └── user_stories.md           # User Stories with acceptance criteria
-├── knowledge/                    # Knowledge base files for RAG indexing
-├── .env.example                  # Environment variable template
-├── config.py                     # Flask configuration classes (dev/prod/test)
-├── requirements.txt              # Pinned Python dependencies
-├── setup_db.py                   # Database initialisation + seed data
-├── simulate.py                   # Sample transaction data generator
-├── simulate_blocked.py           # Demonstrates a hard-blocked transaction
-└── run.py                        # Application entry point
+│   │   └── index.html            # SPA shell
+│   └── __init__.py               # Application factory
+├── ml/                           # Model training scripts
+├── docs/                         # Architecture, SRS, use cases, SDLC
+├── knowledge/                    # RAG knowledge base
+├── .env.example
+├── config.py
+├── requirements.txt
+├── setup_db.py                   # DB init + seed
+├── simulate.py                   # Sample data generator
+├── simulate_blocked.py           # Hard-block demo script
+└── run.py                        # Entry point
 ```
 
 ---
 
-## Quick Start
+## Getting Started
 
 ### Prerequisites
+
 - Python 3.11+
 - MySQL 8.0+
 - Git
 
-### 1. Clone the repository
+### 1. Clone
+
 ```bash
 git clone https://github.com/irinakaramyan/AI_FraudGuard_.git
 cd AI_FraudGuard_
 ```
 
-### 2. Create virtual environment
+### 2. Virtual environment
+
 ```bash
 python -m venv venv
 
@@ -236,41 +178,45 @@ source venv/bin/activate
 ```
 
 ### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 4. Configure environment
+
 ```bash
 cp .env.example .env
-# Edit .env with your database credentials and API keys
 ```
 
-Required values in `.env`:
+Edit `.env` — minimum required values:
 
-| Variable | Description |
+| Variable | How to set |
 |---|---|
 | `DB_PASSWORD` | Your MySQL root password |
-| `SECRET_KEY` | Random 32-byte hex — `python -c "import secrets; print(secrets.token_hex(32))"` |
-| `JWT_SECRET_KEY` | Same method — use a **different** value from SECRET_KEY |
+| `SECRET_KEY` | `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `JWT_SECRET_KEY` | Same method — use a **different** value |
 | `GROQ_API_KEY` | Free key from [console.groq.com](https://console.groq.com/) |
 
-### 5. Set up the database
+### 5. Initialise the database
+
 ```bash
 python setup_db.py
 ```
 
-### 6. (Optional) Load sample data
+### 6. (Optional) Seed sample data
+
 ```bash
 python simulate.py
 ```
 
-### 7. Run the application
+### 7. Start the server
+
 ```bash
 python run.py
 ```
 
-Open **http://localhost:5000** in your browser.
+Navigate to **http://localhost:5000**.
 
 ---
 
@@ -278,136 +224,210 @@ Open **http://localhost:5000** in your browser.
 
 | Username | Password | Role |
 |---|---|---|
-| `admin` | `admin123` | Full access — user mgmt, rules, 2FA |
+| `admin` | `admin123` | Full access — user mgmt, rules, 2FA, monitoring |
 | `analyst` | `analyst123` | Analyst — alerts, transactions, reports |
 
-> **Security note:** Change these immediately in any non-development environment.
+> Change these immediately in any non-development environment.
 
 ---
 
-## AI Assistant Setup
+## Detection Pipeline
 
-The AI Assistant works with a **free** Groq API key — no credit card required:
+### Stage 1 — Compliance Pre-check
+- **Age verification** — hard-blocks transactions for customers under 18 or over 100
+- **OFAC SDN screening** — fuzzy Levenshtein name match against the US Treasury sanctions list (threshold ≥ 0.80); fail-closed — if the list is unavailable, the transaction is blocked
 
-1. Sign up at [console.groq.com](https://console.groq.com/)
-2. Create an API key
-3. Add to `.env`: `GROQ_API_KEY=gsk_xxxxxxxxxxxx`
-4. Restart the server
+### Stage 2 — Rule Engine
+Six configurable rules, evaluated in sequence:
 
-The assistant uses **Llama 3.3 70B** with:
-- A fraud-domain expert system prompt (AML, KYC, PCI DSS, OFAC)
-- RAG context from the `docs/` directory — indexed at startup using Jaccard similarity
-- Full multi-turn conversation history (capped at 20 turns to avoid token overflow)
+| Rule | Trigger |
+|---|---|
+| `HIGH_AMOUNT` | Single transaction exceeds configurable threshold |
+| `HIGH_FREQUENCY` | Customer exceeds N transactions within the lookback window |
+| `HIGH_RISK_COUNTRY` | Merchant country in the high-risk jurisdiction list |
+| `RAPID_SUCCESSION` | Multiple transactions within a very short time window |
+| `NEW_DEVICE` | Device not previously seen for this customer |
+| `ROUND_AMOUNT` | Suspiciously round amounts (structuring indicator) |
+| `STRUCTURING` | Amounts in the $9,500–$9,999 range (CTR avoidance) |
+
+### Stage 3 — ML Scorer
+Isolation Forest trained on a 14-dimensional feature vector including amount magnitude, hour-of-day, day-of-week, is_weekend, transaction velocity, device novelty, and geographic risk. Returns a normalised anomaly score in [0, 1].
+
+### Stage 4 — Disposition
+```
+combined_score = (rule_score × 0.40) + (ml_score × 0.60)
+
+≥ 0.75  →  blocked   (automatic, no analyst needed)
+≥ 0.45  →  flagged   (queued for analyst review)
+< 0.45  →  approved
+```
 
 ---
 
-## Two-Factor Authentication (Admin)
+## Real-Time Monitoring
+
+The `/api/monitor/stream` endpoint delivers a Server-Sent Events feed — the browser connects once and receives push updates every 3 seconds without polling.
+
+Sliding window counters (per customer, thread-safe `deque`):
+
+| Window | Purpose |
+|---|---|
+| 1 minute | Burst detection |
+| 5 minutes | Velocity spikes |
+| 1 hour | Sustained anomaly patterns |
+
+System-wide counters populate the Live Monitor dashboard KPIs (blocked / flagged / approved / volume / TX rate). On server startup, the last hour of database transactions is replayed into the in-memory windows to avoid a cold-start empty display.
+
+---
+
+## AI Assistant
+
+Powered by **Groq Llama 3.3 70B** (free tier — 14,400 requests/day) with automatic fallback to Anthropic Claude.
+
+Setup:
+1. Create a free API key at [console.groq.com](https://console.groq.com/)
+2. Add `GROQ_API_KEY=gsk_...` to `.env`
+3. Restart the server
+
+The RAG engine indexes the `docs/` directory at startup using Jaccard similarity. Relevant document chunks are injected into every chat request, grounding the model in project-specific context. Conversation history is capped at 20 turns.
+
+---
+
+## Two-Factor Authentication
+
+Admin accounts support TOTP 2FA (RFC 6238 — Google Authenticator / Authy compatible):
 
 1. Log in as `admin`
-2. Click the **lock icon** in the bottom-left sidebar
-3. Scan the QR code with **Google Authenticator** or **Authy**
+2. Open **Settings** (lock icon, sidebar bottom)
+3. Scan the QR code with your authenticator app
 4. Enter the 6-digit code to activate
-5. All subsequent admin logins require the TOTP code after the password
+5. All subsequent admin sessions require the TOTP code after password entry
 
 ---
 
-## API Overview
+## Security
 
-All endpoints require `Authorization: Bearer <JWT>` unless noted. Admin-only endpoints are marked with `🔒`.
+| Control | Implementation |
+|---|---|
+| Authentication | JWT · 1-hour expiry · refresh on re-login |
+| Two-factor auth | TOTP RFC 6238 (admin accounts) |
+| Brute-force protection | 5 failed attempts → 15-minute lockout per IP + username |
+| Role-based access | `admin` / `analyst` enforced at API and UI layers |
+| SQL injection | Parameterised ORM queries · `sanitize_like()` on all ILIKE inputs |
+| Security headers | CSP, X-Frame-Options, X-XSS-Protection, Referrer-Policy, Permissions-Policy |
+| CORS | Strict origin whitelist — wildcard never permitted |
+| Error handling | Generic messages only — no stack traces, no username enumeration |
+| Input validation | All string inputs truncated and stripped |
+| CSV injection | Cells prefixed with `'` when starting with `=`, `+`, `-`, `@` |
+| PII masking | Email, phone, IP last octet masked in all log output |
+| Device privacy | SHA-256 fingerprinting — raw identifiers never stored |
+
+---
+
+## API Reference
+
+All endpoints require `Authorization: Bearer <JWT>`. Admin-only routes are marked 🔒.
 
 ### Authentication
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
-| POST | `/api/auth/login` | Login — returns JWT or 2FA challenge |
-| POST | `/api/auth/2fa/verify` | Complete 2FA login with TOTP code |
+| POST | `/api/auth/login` | Password login — returns JWT or 2FA challenge |
+| POST | `/api/auth/2fa/verify` | Complete 2FA with TOTP code |
 | POST | `/api/auth/2fa/setup` | Generate TOTP secret + QR code |
-| POST | `/api/auth/2fa/enable` | Activate 2FA after scanning QR |
+| POST | `/api/auth/2fa/enable` | Activate 2FA after QR scan |
 | POST | `/api/auth/2fa/disable` | Deactivate 2FA |
 
 ### Transactions
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
-| GET | `/api/transactions` | List transactions (filterable, paginated) |
-| POST | `/api/transactions` | Submit transaction — triggers full fraud pipeline |
-| GET | `/api/transactions/<id>` | Transaction detail + risk score breakdown |
+| GET | `/api/transactions` | Paginated list with filters |
+| POST | `/api/transactions` | Submit — triggers full detection pipeline |
+| GET | `/api/transactions/<id>` | Detail + full risk score breakdown |
 | PUT | `/api/transactions/<id>/review` | Analyst review — mark legitimate or fraud |
 
 ### Alerts
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
-| GET | `/api/alerts` | List fraud alerts (filterable) |
-| PUT | `/api/alerts/<id>/resolve` | Resolve an alert with notes |
+| GET | `/api/alerts` | Paginated alert list |
+| GET | `/api/alerts/<id>` | Alert detail + related transaction |
+| PUT | `/api/alerts/<id>/resolve` | Resolve with notes |
+| GET | `/api/alerts/summary` | Counts by severity and status |
 
 ### Dashboard & Reports
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
 | GET | `/api/dashboard/stats` | KPI aggregations |
 | GET | `/api/dashboard/trend` | 7-day transaction trend |
-| GET | `/api/reports/export` | Export CSV or JSON |
-| GET | `/api/reports/compliance` | 🔒 Compliance metrics (CTR, SAR, OFAC) |
+| GET | `/api/reports/export` | CSV or JSON export (up to 10,000 rows) |
+| GET | `/api/reports/compliance` | 🔒 CTR, SAR, and OFAC compliance metrics |
 
 ### Customers
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
-| GET | `/api/customers` | List customers (filterable) |
-| GET | `/api/customers/<id>` | Customer detail + transaction summary |
+| GET | `/api/customers` | List with risk-level filter |
+| GET | `/api/customers/<id>` | Profile + transaction summary |
 
-### AI Assistant
-| Method | Endpoint | Description |
+### OFAC & Compliance
+| Method | Path | Description |
 |---|---|---|
-| POST | `/api/assistant/chat` | RAG-powered AI chat message |
-
-### Compliance & OFAC
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/compliance/ofac/search` | Search SDN list by name |
-| GET | `/api/compliance/rules` | List detection rules |
-| PUT | `/api/compliance/rules/<id>` | 🔒 Update rule threshold / active state |
+| GET | `/api/compliance/ofac/search` | Fuzzy SDN name search |
+| GET | `/api/compliance/rules` | Active detection rules |
+| PUT | `/api/compliance/rules/<id>` | 🔒 Update rule threshold or toggle active state |
 
 ### Data Ingestion
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
-| POST | `/api/ingest/transaction` | Ingest + preprocess a single transaction |
-| POST | `/api/ingest/batch` | Ingest + preprocess up to 500 transactions |
-| POST | `/api/ingest/customer` | Ingest + preprocess a customer record |
-| POST | `/api/ingest/device` | Ingest + fingerprint a device record |
-| POST | `/api/ingest/preview/transaction` | Dry-run — validate without writing to DB |
+| POST | `/api/ingest/transaction` | Preprocess + ingest single transaction |
+| POST | `/api/ingest/batch` | Batch ingest (max 500 records) |
+| POST | `/api/ingest/customer` | Preprocess + ingest customer record |
+| POST | `/api/ingest/device` | Fingerprint + ingest device record |
+| POST | `/api/ingest/preview/transaction` | Dry-run validation — no DB write |
 | GET | `/api/ingest/stats` | Data quality metrics |
 
 ### Real-Time Monitoring
-| Method | Endpoint | Description |
+| Method | Path | Description |
 |---|---|---|
-| GET | `/api/monitor/realtime` | Polling snapshot of all monitoring metrics |
-| GET | `/api/monitor/stream` | Server-Sent Events live feed (3-second push) |
-| GET | `/api/monitor/events` | Recent monitoring events (last N) |
+| GET | `/api/monitor/realtime` | Full snapshot of all monitoring metrics |
+| GET | `/api/monitor/stream` | SSE live feed (3-second server push) |
+| GET | `/api/monitor/events` | Recent monitoring events |
 | GET | `/api/monitor/network` | Device/IP sharing analysis |
 | GET | `/api/monitor/thresholds` | Active threshold configuration |
 | PUT | `/api/monitor/thresholds` | 🔒 Update thresholds at runtime |
-| GET | `/api/monitor/customer/<id>` | Per-customer real-time velocity stats |
-| POST | `/api/monitor/reset` | 🔒 Reset in-memory windows (testing only) |
+| GET | `/api/monitor/customer/<id>` | Per-customer velocity stats |
+| POST | `/api/monitor/reset` | 🔒 Reset in-memory windows |
 
 ---
 
 ## Simulating a Blocked Transaction
 
-Run the standalone script to see a hard-blocked transaction in action:
-
 ```bash
 python simulate_blocked.py
 ```
 
-This submits an $85,000 wire transfer to Russia (`RU`) and prints the full fraud analysis result — combined score, triggered rules, compliance pre-checks, and alert details.
+Submits an $85,000 wire transfer to Russia (`RU`) and prints the full pipeline result — compliance pre-checks, triggered rules, ML score, combined score, disposition, and alert details.
+
+---
+
+## Documentation
+
+Full project documentation is in the `docs/` directory:
+
+| Document | Contents |
+|---|---|
+| `system_architecture.md` | System Architecture Document (SAD) |
+| `requirements.md` | Software Requirements Specification (IEEE 830) |
+| `sdlc.md` | SDLC — Agile Scrum methodology |
+| `use_cases.md` | Fully-dressed use cases (Cockburn style) |
+| `user_stories.md` | User stories with acceptance criteria |
 
 ---
 
 ## License
 
-MIT License — free to use for educational and commercial purposes.
+MIT — free to use for educational and commercial purposes.
 
 ---
 
-## Author
+## Repository
 
-Built as a diploma-level capstone project demonstrating full-stack AI system design, financial compliance integration, real-time streaming analytics, and production-grade security practices.
-
-**Repository:** https://github.com/irinakaramyan/AI_FraudGuard_
+[https://github.com/irinakaramyan/AI_FraudGuard_](https://github.com/irinakaramyan/AI_FraudGuard_)
