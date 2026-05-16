@@ -1,0 +1,88 @@
+TITLE: Risk Scoring Methodology and Interpretation Guide
+CATEGORY: risk_scoring
+
+## Risk Score Interpretation
+The combined risk score ranges from 0.0 to 1.0 and represents the probability that a transaction is fraudulent.
+
+LOW RISK (0.00 - 0.29):
+Transaction shows no significant fraud indicators. Normal customer behavior. Process without intervention.
+Action: Approve automatically. No analyst review required.
+
+MEDIUM RISK (0.30 - 0.49):
+Transaction shows some minor anomalies but insufficient evidence for flagging. May indicate emerging patterns.
+Action: Approve with enhanced monitoring. Log for pattern analysis. Review if customer shows repeated medium-risk scores.
+
+HIGH RISK (0.50 - 0.74):
+Transaction has multiple fraud indicators or one significant indicator. Requires investigation.
+Action: FLAG transaction. Hold for analyst review. Send customer verification (OTP, email confirmation). Delay settlement.
+
+CRITICAL RISK (0.75 - 1.00):
+Transaction shows strong fraud indicators. High probability of fraudulent activity.
+Action: BLOCK transaction immediately. Generate CRITICAL alert. Freeze account pending investigation. Notify customer through secure channel.
+
+## Score Component Analysis
+
+Rule Score Components:
+When the rule score is high, examine which rules triggered:
+- LARGE_AMOUNT alone is common for legitimate high-value purchases — look for corroborating signals
+- HIGH_FREQUENCY suggests card testing or account takeover — take immediate action
+- INTERNATIONAL_TRANSACTION needs geographic context — check if customer recently traveled
+- ROUND_AMOUNT combined with other signals is highly suspicious
+
+ML Score Analysis:
+When ML score is high but rule score is low:
+- The model detected statistical anomalies not captured by explicit rules
+- Review the feature values: which features drove the anomaly?
+- Common causes: unusual merchant, time pattern, amount relative to history
+- May indicate new fraud pattern not yet captured in rules
+
+Discordant Scores (high rule, low ML or vice versa):
+- High rule, low ML: Transaction matches rule patterns but model considers it normal — may be false positive
+- Low rule, high ML: Model detects statistical anomaly without explicit rule triggers — investigate carefully
+
+## False Positive Management
+False positives occur when legitimate transactions are incorrectly flagged. Best practices:
+1. Establish baseline rates: Expected false positive rate for well-tuned system is 0.5-2% of transactions
+2. Customer friction: Flagged transactions should trigger step-up authentication, not automatic decline
+3. Feedback loop: Resolved alerts should be fed back to improve model training
+4. Rule tuning: If a rule consistently generates false positives, increase its threshold or reduce weight
+
+## Alert Prioritization Framework
+Analysts should review alerts in this priority order:
+1. CRITICAL severity + high dollar amount (>$5,000)
+2. CRITICAL severity + international transaction
+3. HIGH severity + HIGH_FREQUENCY rule triggered
+4. HIGH severity + new customer (account <30 days)
+5. HIGH severity + standard patterns
+6. MEDIUM severity alerts (batch review)
+
+## Key Performance Indicators (KPIs) for Fraud Detection
+- Fraud Detection Rate (FDR): Percentage of actual fraud caught by system. Target: >85%
+- False Positive Rate (FPR): Percentage of legitimate transactions incorrectly flagged. Target: <2%
+- Average Review Time: Time from alert generation to analyst decision. Target: <2 hours
+- Chargeback Rate: Percentage of transactions resulting in chargebacks. Target: <0.5%
+- System Response Time: Time from transaction submission to risk score. Target: <200ms
+
+## Model Performance Benchmarks
+Isolation Forest (unsupervised):
+- Precision: ~72% (72 of 100 flagged are actually fraud)
+- Recall: ~68% (catches 68% of all fraudulent transactions)
+- F1 Score: ~0.70
+
+Random Forest (supervised):
+- Precision: ~88%
+- Recall: ~82%
+- F1 Score: ~0.85
+
+Combined Ensemble:
+- Precision: ~85%
+- Recall: ~80%
+- F1 Score: ~0.82
+- AUC-ROC: ~0.91
+
+## Transaction Amount Risk Profile
+$0 - $100: Low inherent risk regardless of other factors
+$100 - $1,000: Moderate risk, rely primarily on behavioral signals
+$1,000 - $10,000: High inherent risk, apply full rule engine
+$10,000+: Very high inherent risk, mandatory review for first occurrence
+$50,000+: Critical — manual approval required regardless of risk score

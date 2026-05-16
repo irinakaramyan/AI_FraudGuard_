@@ -1,0 +1,48 @@
+@startuml C4_Level1_SystemContext
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+LAYOUT_WITH_LEGEND()
+LAYOUT_TOP_DOWN()
+
+title C4 Model — Level 1: System Context\nFraudGuard AI Detection System
+
+' ══════════════════════════════════════════
+'  ACTORS
+' ══════════════════════════════════════════
+Person(analyst,       "Fraud Analyst",       "Bank employee who monitors\nalerts and reviews flagged\ntransactions daily.")
+Person(admin,         "System Administrator","Manages users, rules,\nthresholds, and system\nconfigurations. Admin 2FA.")
+Person(customer,      "Bank Customer",       "Initiates financial\ntransactions via banking\napps or branches.")
+
+' ══════════════════════════════════════════
+'  CORE SYSTEM
+' ══════════════════════════════════════════
+System(fraudguard, "FraudGuard AI\nDetection System", "Real-time fraud detection platform\ncombining ML anomaly detection,\nrule-based engine, OFAC sanctions\nscreening, and AI-assisted analysis.")
+
+' ══════════════════════════════════════════
+'  EXTERNAL SYSTEMS
+' ══════════════════════════════════════════
+System_Ext(banking_api,    "Core Banking System",         "Provides customer account data,\nbalance information, and\ntransaction history.")
+System_Ext(payment_gw,     "Payment Gateway",             "Processes card transactions\n(Visa / Mastercard / SWIFT).\nRoutes approvals & declines.")
+System_Ext(ofac_service,   "OFAC SDN List Service",       "U.S. Treasury sanctions database.\nSpecially Designated Nationals\n(SDN) list — updated daily.")
+System_Ext(kyc_provider,   "KYC / Identity Provider",     "Third-party identity verification\nservice for customer onboarding\nand AML due diligence.")
+System_Ext(email_service,  "Notification Service",        "Sends email/SMS alerts for\ncritical fraud events and\nregulatory compliance reports.")
+System_Ext(ai_provider,    "AI Language Model API",       "Groq (Llama 3.3 70B) or Anthropic\n(Claude). Provides natural-language\nfraud analysis via AI Assistant.")
+
+' ══════════════════════════════════════════
+'  RELATIONSHIPS — Users → System
+' ══════════════════════════════════════════
+Rel(customer,    fraudguard,    "Submits transactions",               "HTTPS / Banking App")
+Rel(analyst,     fraudguard,    "Reviews alerts, investigates cases,\nscreens OFAC matches",  "HTTPS / Web Browser")
+Rel(admin,       fraudguard,    "Manages users, rules, thresholds\n(requires 2FA)",            "HTTPS / Web Browser")
+
+' ══════════════════════════════════════════
+'  RELATIONSHIPS — System → External
+' ══════════════════════════════════════════
+Rel(fraudguard,  banking_api,   "Fetches account history\nand customer profiles",             "REST / HTTPS [sync]")
+Rel(fraudguard,  payment_gw,    "Receives transaction events,\nreturns approve/block decision", "REST / HTTPS [sync]")
+Rel(fraudguard,  ofac_service,  "Downloads SDN list\n(daily scheduled job)",                   "HTTPS / CSV [async]")
+Rel(fraudguard,  kyc_provider,  "Verifies customer identity\nduring onboarding",               "REST / HTTPS [sync]")
+Rel(fraudguard,  email_service, "Sends fraud alerts and\ncompliance notifications",            "SMTP / REST [async]")
+Rel(fraudguard,  ai_provider,   "Sends analyst queries,\nreceives AI responses",              "REST / HTTPS [sync]")
+
+@enduml

@@ -1,0 +1,180 @@
+@startuml C4_Level3_Components_BackendAPI
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+LAYOUT_TOP_DOWN()
+
+title C4 Model — Level 3: Component Diagram\nBackend API — FraudGuard AI Detection System
+
+AddElementTag("decision",  $bgColor="#dc2626", $fontColor="white",  $borderColor="#b91c1c", $legendText="Fraud Decision Point")
+AddElementTag("security",  $bgColor="#0369a1", $fontColor="white",  $borderColor="#075985", $legendText="Security Component")
+AddElementTag("async",     $bgColor="#7c3aed", $fontColor="white",  $borderColor="#6d28d9", $legendText="Async / Background")
+AddRelTag("decision_flow", $textColor="#dc2626", $lineColor="#dc2626", $lineStyle=BoldLine())
+AddRelTag("async",         $textColor="#7c3aed", $lineColor="#7c3aed", $lineStyle=DashedLine())
+
+' ══════════════════════════════════════════
+'  EXTERNAL ACTORS / CONTAINERS
+' ══════════════════════════════════════════
+Container(spa,       "Web Application",     "Vanilla JS SPA",    "Browser-based UI")
+ContainerDb(db,      "MySQL Database",      "SQLAlchemy ORM",    "Persistent data store")
+Container(ml_model,  "Isolation Forest",    "scikit-learn/joblib","Trained ML model file")
+Container(ofac_db,   "OFAC SDN Entries",    "MySQL table",        "Cached SDN list")
+Container(ai_api,    "Groq / Anthropic",    "External LLM API",   "AI language model")
+Container(scheduler, "APScheduler",         "Background Jobs",    "Periodic task runner")
+
+' ══════════════════════════════════════════
+'  BACKEND API BOUNDARY
+' ══════════════════════════════════════════
+System_Boundary(backend, "Backend API — Flask Application") {
+
+    '── Security Layer ────────────────────────
+    Component(security_middleware, "Security Middleware",
+              "Flask before/after_request hooks",
+              "Injects X-Request-ID, enforces\nCSP, X-Frame-Options, X-XSS,\nReferrer-Policy on every\nHTTP response.",
+              $tags="security")
+
+    Component(auth_controller, "Auth Controller",
+              "Flask Blueprint /api/auth",
+              "Handles login (username+password),\n2FA challenge/verify (TOTP/PyOTP),\nJWT issuance, user CRUD.\nBrute-force lockout via LoginThrottle.",
+              $tags="security")
+
+    Component(login_throttle, "Login Throttle",
+              "Python / in-memory store",
+              "Tracks failed login attempts\nper IP and username. Locks out\nafter 5 failures for 15 minutes.",
+              $tags="security")
+
+    Component(jwt_guard, "JWT Guard",
+              "Flask-JWT-Extended decorators",
+              "@jwt_required(), @admin_required,\n@analyst_or_admin decorators.\nValidates Bearer tokens on\nevery protected endpoint.",
+              $tags="security")
+
+    '── API Controllers ───────────────────────
+    Component(tx_controller, "Transaction Controller",
+              "Flask Blueprint /api/transactions",
+              "CRUD for transactions.\nPOST → validate → run fraud analysis.\nGET → paginated list with filters\n(status, risk, amount, country).")
+
+    Component(alert_controller, "Alert Controller",
+              "Flask Blueprint /api/alerts",
+              "Lists and resolves fraud alerts.\nPUT → mark resolved with notes.\nFilters: severity, status, date.")
+
+    Component(dashboard_controller, "Dashboard Controller",
+              "Flask Blueprint /api/dashboard",
+              "Aggregates KPIs: transaction counts,\nfraud rate, risk distribution,\n7-day trend, alert type breakdown.")
+
+    Component(customer_controller, "Customer Controller",
+              "Flask Blueprint /api/customers",
+              "Customer risk profiles.\nIncludes age, country, OFAC flag,\nrisk level, transaction history.")
+
+    Component(compliance_controller, "Compliance Controller",
+              "Flask Blueprint /api/compliance",
+              "Detection rules CRUD.\nToggles rule active/inactive.\nExposes rule weights and thresholds.")
+
+    Component(ofac_controller, "OFAC Controller",
+              "Flask Blueprint /api/ofac",
+              "Real-time name screening.\nPaginates SDN list.\nReturns fuzzy match scores\nand OFAC program details.")
+
+    Component(assistant_controller, "AI Assistant Controller",
+              "Flask Blueprint /api/assistant",
+              "Accepts analyst query + history.\nRoutes to LLM provider (Groq/Anthropic).\nReturns AI response with\nfraud-domain expertise.")
+
+    '── Core Business Logic ───────────────────
+    Component(fraud_orchestrator, "Fraud Detection Orchestrator",
+              "app/services/fraud_detector.py",
+              "Central decision engine.\n1. OFAC pre-check (fail-closed)\n2. Age restriction check\n3. Rule engine evaluation\n4. ML anomaly scoring\n5. Combined weighted score\n6. Status decision: approve/flag/block\n7. Alert generation",
+              $tags="decision")
+
+    Component(rule_engine, "Rule-Based Engine",
+              "app/services/fraud_detector.py",
+              "Evaluates active FraudRule records:\n• HIGH_AMOUNT (>$10K)\n• HIGH_FREQUENCY (>5 tx/hr)\n• HIGH_RISK_COUNTRY\n• RAPID_SUCCESSION (<60 s)\n• NEW_DEVICE pattern\n• ROUND_AMOUNT flag\nWeighted score 0.0–1.0.",
+              $tags="decision")
+
+    Component(ml_predictor, "ML Anomaly Scorer",
+              "app/services/fraud_detector.py\n+ IsolationForest (joblib)",
+              "Loads pre-trained IsolationForest.\nEngineers 14 features from tx data.\nConverts anomaly score to\nprobability 0.0–1.0.",
+              $tags="decision")
+
+    Component(ofac_checker, "OFAC Screening Module",
+              "app/services/ofac_service.py",
+              "Normalises customer name.\nTokenises into n-grams.\nFuzzy-matches against SDN list\nusing Levenshtein distance.\nThreshold: ≥0.80 similarity.",
+              $tags="decision")
+
+    Component(risk_aggregator, "Risk Score Aggregator",
+              "app/services/fraud_detector.py",
+              "Combines rule_score (40%)\nand ml_score (60%) into\ncombined_score. Maps to\nrisk levels: low/medium/high/critical.\nPersists RiskScore record.")
+
+    Component(alert_generator, "Alert Generator",
+              "app/services/fraud_detector.py",
+              "Creates FraudAlert records\nfor each rule violation.\nAssigns severity: LOW/MEDIUM\n/HIGH/CRITICAL. Triggers\nnotification for CRITICAL alerts.")
+
+    '── Cross-Cutting Concerns ─────────────────
+    Component(input_sanitiser, "Input Sanitiser",
+              "app/utils/security.py",
+              "safe_str() — truncates + strips.\nsanitize_like() — escapes SQL\nwildcard chars in ILIKE queries.\nValidates amounts, currencies,\nemail formats, password strength.")
+
+    Component(audit_logger, "Audit Logger",
+              "Python logging / structlog",
+              "Logs all business events:\nlogin attempts, transaction\nsubmissions, alert resolutions,\n2FA events, rule changes.\nNever exposes stack traces to client.")
+
+    Component(ofac_scheduler, "OFAC Refresh Job",
+              "APScheduler / app/tasks",
+              "Runs daily at 02:00 UTC.\nDownloads OFAC CSV from Treasury.\nParses SDN entries.\nUpserts to database.\nLogs update result.",
+              $tags="async")
+}
+
+' ══════════════════════════════════════════
+'  RELATIONSHIPS — Inbound
+' ══════════════════════════════════════════
+Rel(spa, security_middleware, "All HTTP requests pass through",     "HTTPS")
+Rel(security_middleware, jwt_guard,         "Validates JWT on protected routes",  "Internal")
+Rel(security_middleware, auth_controller,   "Routes /api/auth/*",                 "Internal")
+Rel(security_middleware, tx_controller,     "Routes /api/transactions/*",         "Internal")
+Rel(security_middleware, alert_controller,  "Routes /api/alerts/*",               "Internal")
+Rel(security_middleware, dashboard_controller, "Routes /api/dashboard/*",         "Internal")
+Rel(security_middleware, customer_controller,  "Routes /api/customers/*",         "Internal")
+Rel(security_middleware, compliance_controller,"Routes /api/compliance/*",        "Internal")
+Rel(security_middleware, ofac_controller,   "Routes /api/ofac/*",                 "Internal")
+Rel(security_middleware, assistant_controller, "Routes /api/assistant/*",         "Internal")
+
+' Auth internals
+Rel(auth_controller,    login_throttle,     "Checks & records failed attempts",   "Internal")
+Rel(auth_controller,    jwt_guard,          "Issues/verifies tokens",             "Internal")
+Rel(auth_controller,    input_sanitiser,    "Sanitises all string inputs",        "Internal")
+Rel(auth_controller,    audit_logger,       "Logs login/2FA events",              "Internal")
+Rel(auth_controller,    db,                 "Reads/writes User records",          "SQLAlchemy")
+
+' Transaction flow (THE CRITICAL PATH)
+Rel(tx_controller,      input_sanitiser,    "Validates and sanitises fields",     "Internal")
+Rel(tx_controller,      fraud_orchestrator, "Submits validated transaction",      "Internal", $tags="decision_flow")
+Rel(fraud_orchestrator, ofac_checker,       "1. OFAC pre-screen (fail-closed)",   "Internal", $tags="decision_flow")
+Rel(fraud_orchestrator, rule_engine,        "2. Evaluates fraud rules",           "Internal", $tags="decision_flow")
+Rel(fraud_orchestrator, ml_predictor,       "3. ML anomaly score",               "Internal", $tags="decision_flow")
+Rel(fraud_orchestrator, risk_aggregator,    "4. Combines scores → risk level",    "Internal", $tags="decision_flow")
+Rel(fraud_orchestrator, alert_generator,    "5. Creates alerts for violations",   "Internal", $tags="decision_flow")
+Rel(fraud_orchestrator, audit_logger,       "Logs analysis result",               "Internal")
+
+' ML + OFAC data sources
+Rel(ml_predictor,       ml_model,           "Loads trained model via joblib",     "File I/O")
+Rel(ofac_checker,       ofac_db,            "Queries normalised SDN entries",     "SQLAlchemy")
+
+' Persistence
+Rel(tx_controller,      db,                 "Persists Transaction record",        "SQLAlchemy")
+Rel(risk_aggregator,    db,                 "Writes RiskScore record",            "SQLAlchemy")
+Rel(alert_generator,    db,                 "Writes FraudAlert record",           "SQLAlchemy")
+Rel(alert_controller,   db,                 "Reads/updates FraudAlert records",   "SQLAlchemy")
+Rel(dashboard_controller,db,                "Aggregation queries (COUNT, SUM)",   "SQLAlchemy")
+Rel(customer_controller, db,                "Reads/writes Customer records",      "SQLAlchemy")
+Rel(compliance_controller,db,               "CRUD on FraudRule records",          "SQLAlchemy")
+
+' OFAC controller
+Rel(ofac_controller,    ofac_checker,       "Invokes name screening",             "Internal")
+Rel(ofac_controller,    db,                 "Paginates OFACEntry records",        "SQLAlchemy")
+
+' AI Assistant
+Rel(assistant_controller, ai_api,           "Forwards query + conversation history","HTTPS REST")
+
+' Background jobs
+Rel(scheduler,          ofac_scheduler,     "Triggers at 02:00 UTC daily",        "APScheduler", $tags="async")
+Rel(ofac_scheduler,     ofac_db,            "Upserts refreshed SDN entries",      "SQLAlchemy",  $tags="async")
+Rel(ofac_scheduler,     audit_logger,       "Logs refresh result",                "Internal",    $tags="async")
+
+@enduml

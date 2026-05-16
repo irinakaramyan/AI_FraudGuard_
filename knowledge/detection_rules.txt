@@ -1,0 +1,75 @@
+TITLE: Fraud Detection Rules — Thresholds and Methodology
+CATEGORY: detection_rules
+
+## Large Amount Rule (LARGE_AMOUNT)
+Threshold: Transactions exceeding $10,000 USD
+Weight: 0.35 (35% contribution to rule score)
+Rationale: Large transactions carry higher risk as they represent greater potential loss.
+Customization: Threshold should be adjusted based on customer segment. Business accounts may have higher thresholds ($50,000+). Premium personal accounts may warrant $25,000 threshold.
+False positive mitigation: Reduce weight for customers with established history of large legitimate transactions. Consider customer's average transaction amount and deviation.
+
+## Unusual Hours Rule (UNUSUAL_HOURS)
+Threshold: Transactions between 01:00 and 05:00 local time
+Weight: 0.20 (20% contribution)
+Rationale: Genuine customers rarely transact in the early morning hours. Fraudsters operating across time zones may not account for local time.
+Customization: International travelers and night-shift workers may trigger this rule legitimately. Consider customer's historical transaction time patterns.
+
+## High Frequency Rule (HIGH_FREQUENCY)
+Threshold: More than 5 transactions within 60 minutes
+Weight: 0.30 (30% contribution)
+Rationale: Legitimate customers rarely need to make many transactions in rapid succession. High frequency often indicates card testing or fraudulent use.
+Sub-rules:
+- RAPID_TRANSACTIONS: 3+ transactions within 5 minutes (weight 0.25)
+- This catches card testing attacks and velocity fraud immediately
+
+## International Transaction Rule (INTERNATIONAL_TRANSACTION)
+Threshold: Transaction location country differs from customer's home country
+Weight: 0.25 (25% contribution)
+Rationale: Transactions in foreign countries may indicate card skimming, online theft, or account takeover.
+High-risk countries trigger additional weight: Nigeria (NG), Russia (RU), Ukraine (UA), Belarus (BY), North Korea (KP), Iran (IR)
+Mitigation: Travel notifications from customer reduce this rule's weight.
+
+## Round Amount Rule (ROUND_AMOUNT)
+Threshold: Transaction amount is exactly divisible by 100 and exceeds $1,000
+Weight: 0.15 (15% contribution)
+Rationale: Money laundering and fraud often involves round numbers. Legitimate purchases rarely end in exactly .00 for large amounts.
+Examples: $5,000.00, $10,000.00, $25,000.00 are suspicious. $4,987.32 is not.
+
+## Amount Deviation Rule (AMOUNT_DEVIATION)
+Threshold: Transaction amount deviates more than 3 standard deviations from customer's average
+Weight: 0.25 (25% contribution)
+Rationale: Customers have established spending patterns. Large deviations may indicate account takeover or unauthorized use.
+Calculation: deviation = |transaction_amount - avg_amount| / avg_amount. If deviation > 3.0 (300%), rule triggers.
+
+## High-Risk Merchant Rule (HIGH_RISK_MERCHANT)
+Categories: gambling, cryptocurrency, money_transfer, adult_content
+Weight: 0.20 (20% contribution)
+Rationale: These merchant categories are disproportionately used in fraudulent transactions and money laundering.
+
+## Combined Risk Score Formula
+combined_score = (0.40 × rule_score) + (0.60 × ml_score)
+- rule_score: Sum of all triggered rule weights, capped at 1.0
+- ml_score: Normalized Isolation Forest anomaly score (0.0 to 1.0)
+- Risk levels: LOW (<0.30), MEDIUM (0.30-0.50), HIGH (0.50-0.75), CRITICAL (>0.75)
+- Action thresholds: Flag at 0.50, Block at 0.80
+
+## Isolation Forest ML Model
+The primary ML model is an Isolation Forest trained on 8,000 normal and 500 fraudulent synthetic transactions.
+Feature set (10 features):
+1. transaction_amount — raw dollar amount
+2. hour_of_day — 0 to 23
+3. day_of_week — 0 (Monday) to 6 (Sunday)
+4. is_international — binary flag
+5. is_unusual_hour — binary flag (1am-5am)
+6. recent_transaction_count — count in last 60 minutes
+7. amount_deviation — z-score from customer average
+8. is_round_amount — binary flag
+9. is_high_risk_category — binary flag
+10. customer_risk_level — 0 (low/medium) or 1 (high)
+
+Isolation Forest works by randomly partitioning features. Anomalies (fraudulent transactions) require fewer partitions to isolate, producing a lower anomaly score which we invert to a 0-1 fraud probability.
+
+## Random Forest Classifier (Secondary Model)
+A supervised Random Forest classifier (100 estimators) is also trained on labeled synthetic data.
+Used as a secondary signal: final_ml_score = 0.5 × iso_score + 0.5 × rf_probability
+This combination improves precision by cross-validating unsupervised anomaly detection with supervised learning.

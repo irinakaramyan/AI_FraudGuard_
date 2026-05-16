@@ -1,0 +1,81 @@
+TITLE: Common Fraud Patterns and Attack Vectors
+CATEGORY: fraud_patterns
+
+## Velocity Attacks
+Velocity attacks occur when fraudsters make many transactions in a short timeframe, hoping to maximize theft before detection.
+Key indicators:
+- More than 5 transactions within 60 minutes from the same account
+- Multiple small transactions followed by one large transaction (structuring)
+- Rapid succession of declined transactions before an approved one
+- Multiple card-not-present transactions across different merchants in minutes
+
+## Card Testing / BIN Attacks
+Criminals test stolen card numbers with small transactions to verify validity before making large purchases.
+Indicators:
+- Transactions under $1.00 at gas stations or online merchants
+- Multiple failed authorization attempts before success
+- Same IP address or device testing multiple card numbers
+- Transactions at merchants known for easy authorization (parking, charity)
+
+## Account Takeover (ATO)
+Fraudsters gain access to legitimate customer accounts through credential theft, phishing, or social engineering.
+Signs:
+- Login from new device or IP address followed immediately by high-value transaction
+- Password change followed by quick transaction
+- Multiple failed login attempts before success
+- Transaction in different geographic location than recent history
+
+## Synthetic Identity Fraud
+Criminals create fake identities by combining real and fictitious personal information.
+Characteristics:
+- New account with no transaction history suddenly making large purchases
+- Address associated with multiple different identities
+- Social Security number belongs to deceased person or minor
+- Thin credit file with sudden high-value activity
+
+## Card-Not-Present (CNP) Fraud
+Fraud using stolen card details for online purchases where physical card is not required.
+Patterns:
+- Shipping address different from billing address
+- Multiple failed CVV attempts
+- High-value digital goods (gift cards, electronics, software)
+- International shipping for domestic cardholders
+- Order placed with express/overnight shipping
+
+## Triangulation Fraud
+Fraudster creates fake online store, collects real payment data from victims, uses stolen cards to fulfill orders.
+Indicators:
+- Multiple orders from different customers shipped to same address
+- Merchant category mismatch with typical customer behavior
+- Orders with mismatched billing and shipping information
+
+## Refund / Return Fraud
+Manipulation of refund processes to extract money from merchants or financial institutions.
+Signs:
+- Frequent refund requests on high-value items
+- Refunds requested immediately after purchase
+- Multiple refunds across similar transaction amounts
+- Return of different item than purchased
+
+## Money Mule Transactions
+Fraudsters use intermediary accounts to move stolen funds, making tracing difficult.
+Patterns:
+- Account receiving funds from multiple unknown sources then immediately transferring out
+- Round-dollar transfers (exactly $500, $1000, $5000)
+- Multiple small incoming transfers followed by one large outgoing transfer
+- Wire transfers to high-risk jurisdictions (NG, RU, UA, IR, KP)
+
+## Geographical Anomalies
+Transactions occurring in locations inconsistent with the customer's established patterns.
+Indicators:
+- Transaction in foreign country without prior travel notifications
+- Two transactions in physically impossible locations within short timeframe (velocity of location)
+- Transaction at unusual hour for the customer's timezone
+- IP address geolocation does not match transaction location
+
+## First-Party Fraud (Friendly Fraud)
+Legitimate customers who dispute legitimate charges or abuse merchant policies.
+Signs:
+- Customer disputes transaction they made themselves
+- Pattern of chargebacks after high-value purchases
+- Account history shows legitimate use followed by sudden dispute activity

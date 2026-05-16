@@ -1,0 +1,53 @@
+# ── Secrets & credentials ─────────────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.staging
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── ML models (large binary files — store in artifact registry, not git) ──────
+ml/models/*.pkl
+ml/models/*.joblib
+ml/models/*.h5
+ml/models/*.pb
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Generated files ───────────────────────────────────────────────────────────
+project_structure.gv
+*.svg
+reset_mysql_password.bat
+
+

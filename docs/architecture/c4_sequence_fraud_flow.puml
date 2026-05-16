@@ -1,0 +1,186 @@
+@startuml C4_Sequence_FraudDetectionFlow
+!theme plain
+skinparam sequenceArrowColor #38bdf8
+skinparam sequenceParticipantBorderColor #334155
+skinparam sequenceParticipantBackgroundColor #1e293b
+skinparam sequenceParticipantFontColor #e2e8f0
+skinparam sequenceGroupBorderColor #334155
+skinparam sequenceGroupBackgroundColor #0f172a
+skinparam sequenceGroupFontColor #38bdf8
+skinparam noteBorderColor #334155
+skinparam noteBackgroundColor #0f172a
+skinparam noteFontColor #94a3b8
+skinparam sequenceLifeLineBorderColor #334155
+skinparam sequenceArrowThickness 1.5
+skinparam responseMessageBelowArrow true
+
+title Transaction Fraud Detection — End-to-End Sequence\nFraudGuard AI Detection System
+
+actor       "Analyst / System"    as user
+participant "Web App\n(SPA)"      as spa        #1e3a5f
+participant "API Layer\n(Flask)"  as api         #1e293b
+participant "JWT Guard"           as jwt         #0f4c75
+participant "Input\nSanitiser"    as sanitiser   #1e293b
+participant "Transaction\nProcessor" as txproc  #1e293b
+participant "Fraud\nOrchestrator" as orchestrator #1a1a2e #dc2626
+participant "OFAC\nChecker"       as ofac        #2d1b4e
+participant "Rule\nEngine"        as rules       #2d1b4e
+participant "ML\nPredictor"       as ml          #2d1b4e
+participant "Risk\nAggregator"    as aggregator  #2d1b4e
+participant "Alert\nGenerator"    as alerts      #1a1a2e
+participant "Database\n(MySQL)"   as db          #14293d
+
+== Authentication ==
+user  -> spa        : Login (username, password)
+spa   -> api        : POST /api/auth/login
+api   -> jwt        : LoginThrottle.is_locked(ip, user)
+alt Account locked
+    jwt --> api     : LOCKED (429)
+    api --> spa     : 429 Too Many Requests
+else Not locked
+    api -> db       : SELECT user WHERE username=?
+    db  --> api     : User record
+    api -> jwt      : check_password(hash, input)
+    alt Admin + 2FA enabled
+        api --> spa : { requires_2fa: true, temp_token }
+        spa -> user : Show TOTP code input
+        user -> spa : Enter 6-digit code
+        spa -> api  : POST /api/auth/2fa/verify {code}
+        api -> jwt  : pyotp.TOTP.verify(secret, code)
+        alt Code valid
+            api --> spa : { access_token, user }
+        else Invalid code
+            api --> spa : 401 Invalid authenticator code
+        end
+    else Normal login
+        api --> spa : { access_token, user }
+    end
+end
+
+|||
+== Transaction Submission ==
+user -> spa         : Submit transaction form
+spa  -> api         : POST /api/transactions\n{customer_id, amount, merchant, ...}\nAuthorization: Bearer <JWT>
+
+api  -> jwt         : @jwt_required() — validate token
+jwt  --> api        : identity = user_id
+
+api  -> sanitiser   : safe_str(), safe_int()\nsanitize_like(), validate amount
+sanitiser --> api   : Sanitised & validated fields
+
+api  -> db          : SELECT customer WHERE customer_id=?
+db   --> api        : Customer record
+
+api  -> txproc      : process_transaction(data, customer)
+txproc -> db        : INSERT Transaction (status=pending)
+db   --> txproc     : transaction.id assigned
+
+|||
+== Fraud Detection Pipeline (Critical Path) ==
+
+txproc -> orchestrator : analyze_transaction(tx, customer)
+note right of orchestrator
+  **Decision engine starts**
+  All steps are synchronous.
+  First failure BLOCKS tx.
+end note
+
+group STEP 1 — OFAC Pre-Screen [fail-closed]
+    orchestrator -> ofac : screen_name(customer.name)
+    ofac -> db           : SELECT ofac_entries\nWHERE sdn_name_norm LIKE ?
+    db   --> ofac        : SDN candidates
+    ofac -> ofac         : fuzzy_match(name, candidates)\nLevenshtein distance ≥ 0.80?
+    ofac --> orchestrator: OFACResult {matched, score, action}
+    alt OFAC match found (score ≥ 0.80)
+        orchestrator -> db  : UPDATE tx SET status='blocked'
+        orchestrator -> alerts: create_alert(CRITICAL, OFAC_MATCH)
+        orchestrator --> txproc: { status: blocked, risk: critical }
+        note right : **BLOCKED — OFAC HIT**\nNo further checks needed
+    else Service error (fail-closed)
+        orchestrator -> db  : UPDATE tx SET status='blocked'
+        orchestrator --> txproc: { status: blocked, reason: OFAC_UNAVAILABLE }
+    end
+end
+
+group STEP 2 — Age Restriction Check
+    orchestrator -> orchestrator : customer.age in [18, 100]?
+    alt Age violation
+        orchestrator -> db   : UPDATE tx SET status='blocked'
+        orchestrator -> alerts: create_alert(HIGH, AGE_RESTRICTION)
+        orchestrator --> txproc: { status: blocked }
+        note right : **BLOCKED — AGE VIOLATION**
+    end
+end
+
+group STEP 3 — Rule-Based Engine
+    orchestrator -> rules : evaluate(tx, customer, active_rules)
+    rules -> db           : SELECT fraud_rules WHERE is_active=true
+    db    --> rules       : List of FraudRule records
+    rules -> rules        : Evaluate each rule:\n• HIGH_AMOUNT > $10,000\n• HIGH_FREQUENCY > 5/hr\n• HIGH_RISK_COUNTRY\n• RAPID_SUCCESSION < 60s\n• NEW_DEVICE pattern\n• ROUND_AMOUNT flag
+    rules --> orchestrator: rule_score: float [0.0–1.0]\nviolations: list[dict]
+end
+
+group STEP 4 — ML Anomaly Detection
+    orchestrator -> ml    : predict(tx, customer)
+    ml -> ml              : engineer_features() → ndarray[14]
+    note right of ml
+      14-dimensional feature vector:
+      amount, hour, day_of_week,
+      is_weekend, amount_z_score,
+      tx_count_1h, tx_count_24h,
+      amount_ratio, is_high_risk,
+      is_new_device, is_round,
+      risk_level_enc, card_enc, type_enc
+    end note
+    ml -> ml              : IsolationForest.predict(features)
+    ml -> ml              : anomaly_score → probability [0.0–1.0]
+    ml --> orchestrator   : ml_score: float [0.0–1.0]
+end
+
+group STEP 5 — Score Aggregation & Decision
+    orchestrator -> aggregator : combine(rule_score×0.40, ml_score×0.60)
+    aggregator -> aggregator   : combined = 0.40×rule + 0.60×ml
+    aggregator -> aggregator   : risk_level = map(combined)\n≥0.75→critical, ≥0.50→high\n≥0.25→medium, else→low
+    aggregator -> aggregator   : status = decide(combined)\n≥0.75→blocked, ≥0.50→flagged\n<0.50→approved
+    aggregator -> db           : INSERT RiskScore\n{rule_score, ml_score, combined, level}
+    aggregator --> orchestrator: { status, risk_level, combined_score }
+
+    alt combined_score ≥ 0.75 (CRITICAL)
+        orchestrator -> db  : UPDATE tx SET status='blocked', is_fraud=true
+        note right : **BLOCKED — HIGH RISK**
+    else combined_score ≥ 0.50 (HIGH)
+        orchestrator -> db  : UPDATE tx SET status='flagged', is_fraud=true
+        note right : **FLAGGED — REVIEW REQUIRED**
+    else combined_score < 0.50 (LOW/MEDIUM)
+        orchestrator -> db  : UPDATE tx SET status='approved'
+        note right : **APPROVED — LOW RISK**
+    end
+end
+
+group STEP 6 — Alert Generation
+    orchestrator -> alerts : generate_alerts(tx, violations, risk_level)
+    loop for each rule violation
+        alerts -> db       : INSERT FraudAlert\n{type, severity, description, risk_factors}
+        db --> alerts      : alert.id
+    end
+    alt CRITICAL severity alert
+        alerts -> alerts   : trigger_notification()\n[async: email/webhook]
+    end
+    alerts --> orchestrator : alerts_created: int
+end
+
+orchestrator --> txproc : { status, combined_score, risk_level, alerts }
+txproc --> api          : analysis result
+api --> spa             : 201 Created\n{ transaction, fraud_analysis }
+spa --> user            : Display result with risk score & alerts
+
+|||
+== Dashboard Update ==
+user -> spa  : View Dashboard
+spa  -> api  : GET /api/dashboard/stats\nGET /api/dashboard/trend?days=7\nGET /api/dashboard/risk-dist
+api  -> db   : Aggregate queries\n(COUNT, SUM, GROUP BY)
+db  --> api  : Aggregated stats
+api --> spa  : { total_tx, fraud_rate, risk_dist, trend }
+spa --> user : Render KPI cards + charts
+
+@enduml

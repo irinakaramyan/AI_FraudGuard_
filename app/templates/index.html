@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Fraud Detection System</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     LOGIN PAGE
+══════════════════════════════════════════════════ -->
+<div id="login-page">
+  <div class="login-split">
+
+    <!-- ── LEFT PANEL — Branding & Features ───────────────────── -->
+    <div class="login-left">
+      <div class="login-left-inner">
+
+        <div class="login-brand">
+          <div class="login-brand-icon">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32 4L8 14V32C8 46.4 18.4 57.8 32 60C45.6 57.8 56 46.4 56 32V14L32 4Z"
+                    fill="url(#lg1)" stroke="rgba(124,106,247,0.4)" stroke-width="1"/>
+              <path d="M24 32L29 37L40 26" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="lg1" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#7c6af7"/>
+                  <stop offset="100%" stop-color="#00d4aa" stop-opacity="0.7"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <div>
+            <div class="login-brand-name">FraudGuard AI</div>
+            <div class="login-brand-sub">Detection System v2.0</div>
+          </div>
+        </div>
+
+        <h2 class="login-left-title">Real-Time <span>AI-Powered</span><br>Fraud Detection</h2>
+        <p class="login-left-desc">A comprehensive financial fraud monitoring platform combining machine learning, rule-based detection, and OFAC sanctions screening.</p>
+
+        <div class="login-features">
+          <div class="login-feature">
+            <div class="login-feature-icon" style="background:rgba(124,106,247,0.15);color:#7c6af7">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div>
+              <div class="login-feature-title">Real-Time Detection</div>
+              <div class="login-feature-desc">Transactions scored in under 3 seconds using ML + rule engine</div>
+            </div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon" style="background:rgba(214,69,69,0.12);color:#D64545">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div class="login-feature-title">OFAC Sanctions Screening</div>
+              <div class="login-feature-desc">Fuzzy name matching against US Treasury SDN list, updated daily</div>
+            </div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon" style="background:rgba(0,212,170,0.15);color:#00d4aa">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <div class="login-feature-title">AI Fraud Assistant</div>
+              <div class="login-feature-desc">RAG-powered chat with fraud domain expertise (Groq / Anthropic)</div>
+            </div>
+          </div>
+          <div class="login-feature">
+            <div class="login-feature-icon" style="background:rgba(34,197,94,0.15);color:#22c55e">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div>
+              <div class="login-feature-title">2FA &amp; Role-Based Access</div>
+              <div class="login-feature-desc">TOTP two-factor auth for admins, strict analyst/admin separation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-stats">
+          <div class="login-stat">
+            <div class="login-stat-val">6+</div>
+            <div class="login-stat-label">Detection Rules</div>
+          </div>
+          <div class="login-stat">
+            <div class="login-stat-val">14</div>
+            <div class="login-stat-label">ML Features</div>
+          </div>
+          <div class="login-stat">
+            <div class="login-stat-val">7K+</div>
+            <div class="login-stat-label">OFAC Entries</div>
+          </div>
+          <div class="login-stat">
+            <div class="login-stat-val">&lt;3s</div>
+            <div class="login-stat-label">Analysis SLA</div>
+          </div>
+        </div>
+
+        <div class="login-trust">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          JWT Authentication &nbsp;·&nbsp; TOTP 2FA &nbsp;·&nbsp; AES-256 &nbsp;·&nbsp; OFAC Compliant
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── RIGHT PANEL — Login Form ────────────────────────────── -->
+    <div class="login-right">
+      <div class="login-card">
+
+        <div class="login-header">
+          <div class="login-logo-wrap">
+            <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32 4L8 14V32C8 46.4 18.4 57.8 32 60C45.6 57.8 56 46.4 56 32V14L32 4Z"
+                    fill="url(#lg2)" stroke="rgba(124,106,247,0.4)" stroke-width="1"/>
+              <path d="M24 32L29 37L40 26" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="lg2" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%"  stop-color="#7c6af7"/>
+                  <stop offset="100%" stop-color="#00d4aa" stop-opacity="0.7"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h1>Welcome Back</h1>
+          <p>Sign in to your FraudGuard AI account</p>
+        </div>
+
+        <!-- Normal login fields -->
+        <div id="login-main-step">
+          <div class="login-field">
+            <label for="login-username">Username</label>
+            <div class="fd-input-wrap">
+              <span class="fd-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input id="login-username" class="fd-input with-icon" type="text"
+                     placeholder="Enter your username" autocomplete="username" autofocus
+                     onkeydown="if(event.key==='Enter')document.getElementById('login-password').focus()">
+            </div>
+          </div>
+
+          <div class="login-field">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+              <label for="login-password" style="margin:0">Password</label>
+              <span id="login-show-pass" onclick="togglePassword()" style="font-size:0.72rem;color:var(--accent);cursor:pointer;user-select:none">Show</span>
+            </div>
+            <div class="fd-input-wrap">
+              <span class="fd-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input id="login-password" class="fd-input with-icon" type="password"
+                     placeholder="Enter your password" autocomplete="current-password"
+                     onkeydown="if(event.key==='Enter')login()">
+            </div>
+          </div>
+
+          <div id="login-error"></div>
+
+          <button id="login-btn" class="login-btn" onclick="login()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Sign In to FraudGuard
+          </button>
+        </div>
+
+        <!-- ── 2FA Step ─────────────────────────────────────────── -->
+        <div id="login-2fa-step" style="display:none">
+          <div class="login-2fa-header">
+            <div class="login-2fa-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7c6af7" stroke-width="2" style="width:26px;height:26px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="#7c6af7"/></svg>
+            </div>
+            <div class="login-2fa-title">Two-Factor Verification</div>
+            <div class="login-2fa-desc">Enter the 6-digit code from your authenticator app. The code refreshes every 30 seconds.</div>
+          </div>
+          <div class="login-field">
+            <label for="login-totp">Authenticator Code</label>
+            <div class="fd-input-wrap">
+              <span class="fd-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input id="login-totp" class="fd-input with-icon login-totp-input" type="text" maxlength="6"
+                     inputmode="numeric" pattern="[0-9]*" placeholder="000 000"
+                     autocomplete="one-time-code"
+                     onkeydown="if(event.key==='Enter')verify2FA()">
+            </div>
+          </div>
+          <div id="login-2fa-error" style="margin-bottom:0.5rem"></div>
+          <button id="verify-2fa-btn" class="login-btn" onclick="verify2FA()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polyline points="20 6 9 17 4 12"/></svg>
+            Verify &amp; Sign In
+          </button>
+          <button onclick="cancelLogin()" class="login-back-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to login
+          </button>
+        </div>
+
+        <!-- Demo credentials -->
+        <div class="login-demo">
+          <div class="login-demo-label">Quick Access</div>
+          <div class="login-demo-cards">
+            <div class="login-demo-card" onclick="fillDemo('admin','admin123')">
+              <div class="login-demo-card-role admin-role">ADMIN</div>
+              <div class="login-demo-card-user">admin</div>
+              <div class="login-demo-card-pass">admin123 · Full access</div>
+            </div>
+            <div class="login-demo-card" onclick="fillDemo('analyst','analyst123')">
+              <div class="login-demo-card-role analyst-role">ANALYST</div>
+              <div class="login-demo-card-user">analyst</div>
+              <div class="login-demo-card-pass">analyst123 · Read access</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="login-footer-note">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;flex-shrink:0;color:var(--success)"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          End-to-end encrypted &nbsp;·&nbsp; Enterprise grade security
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════
+     MAIN APPLICATION
+══════════════════════════════════════════════════ -->
+<div id="main-app" style="display:none">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────── -->
+  <aside id="sidebar">
+
+    <div class="sidebar-brand" onclick="goHome()" title="Go to Dashboard" style="cursor:pointer">
+      <div class="brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="brand-text">
+        <span class="name">FraudGuard AI</span>
+        <span class="sub">Detection System</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+
+      <a class="nav-item active" data-view="dashboard" onclick="showView('dashboard');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+
+      <a class="nav-item" data-view="transactions" onclick="showView('transactions');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Transactions
+      </a>
+
+      <a class="nav-item" data-view="alerts" onclick="showView('alerts');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Alerts
+        <span class="nav-badge" id="nav-alert-count" style="display:none">0</span>
+      </a>
+
+      <div class="nav-section-label">Management</div>
+
+      <a class="nav-item" data-view="submit" onclick="showView('submit');populateCustomerDropdown();return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Submit Transaction
+      </a>
+
+      <a class="nav-item" data-view="customers" onclick="showView('customers');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Customers
+      </a>
+
+      <a id="nav-rules" class="nav-item" data-view="rules" onclick="showView('rules');return false" href="#" style="display:none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        Detection Rules
+        <span style="font-size:9px;background:var(--warning);color:#000;padding:1px 4px;border-radius:3px;margin-left:auto">ADMIN</span>
+      </a>
+
+      <a class="nav-item" data-view="ofac" onclick="showView('ofac');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+        OFAC Sanctions
+        <span id="nav-ofac-badge" class="nav-badge" style="display:none;background:var(--danger)">!</span>
+      </a>
+
+      <div class="nav-section-label">AI &amp; Platform</div>
+
+      <a class="nav-item" data-view="assistant" onclick="showView('assistant');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        AI Assistant
+        <span class="nav-new">NEW</span>
+      </a>
+
+      <a class="nav-item" data-view="monitor" onclick="showView('monitor');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Live Monitor
+        <span class="nav-badge" id="nav-monitor-badge" style="display:none;background:var(--danger)">!</span>
+      </a>
+
+      <a class="nav-item" data-view="demo" onclick="showView('demo');return false" href="#">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Live Demo
+        <span class="nav-new" style="background:var(--accent)">DEMO</span>
+      </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="ml-status">
+        <div class="ml-dot"></div>
+        <div class="ml-status-text"><strong>ML Active</strong> · Isolation Forest</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar-initials">AD</div>
+        <div class="user-info">
+          <div class="uname" id="nav-username">Admin</div>
+          <div class="urole" id="nav-role">admin</div>
+        </div>
+        <button id="btn-2fa-setup" class="btn-logout" onclick="open2FAModal()"
+                title="Two-Factor Authentication" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1" fill="currentColor"/></svg>
+        </button>
+        <button class="btn-logout" onclick="logout()" title="Sign out">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </aside><!-- /sidebar -->
+
+  <!-- ── TOP BAR ──────────────────────────────────────────── -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <span class="page-title" id="topbar-title">Dashboard</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="page-subtitle" id="topbar-subtitle">Overview & Analytics</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-time" id="live-clock">--:--:--</span>
+      <button class="topbar-btn" onclick="refreshCurrentView()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- ── PAGE CONTENT ─────────────────────────────────────── -->
+  <main id="page-content">
+
+    <!-- ─── DASHBOARD VIEW ──────────────────────────────── -->
+    <div id="view-dashboard" class="fd-view">
+
+      <div class="page-header">
+        <div>
+          <h2>Overview</h2>
+          <p>Real-time fraud detection metrics and system status</p>
+        </div>
+        <button class="fd-btn fd-btn-ghost fd-btn-sm" onclick="loadDashboard()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+
+        <div class="stat-card blue">
+          <div class="stat-icon blue">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" id="kpi-total-tx">—</div>
+            <div class="stat-label">Total Transactions</div>
+            <div class="stat-sub" id="kpi-today-tx">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              Loading…
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card red">
+          <div class="stat-icon red">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" id="kpi-fraud-rate">—</div>
+            <div class="stat-label">Fraud Rate</div>
+            <div class="stat-sub" id="kpi-fraud-count">Loading…</div>
+          </div>
+        </div>
+
+        <div class="stat-card yellow">
+          <div class="stat-icon yellow">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" id="kpi-alerts">—</div>
+            <div class="stat-label">Open Alerts</div>
+            <div class="stat-sub" id="kpi-alerts-sub">Loading…</div>
+          </div>
+        </div>
+
+        <div class="stat-card green">
+          <div class="stat-icon green">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" id="kpi-amount">—</div>
+            <div class="stat-label">Total Processed</div>
+            <div class="stat-sub text-danger" id="kpi-fraud-amt">Loading…</div>
+          </div>
+        </div>
+
+        <div class="stat-card purple">
+          <div class="stat-icon purple">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" id="kpi-customers">—</div>
+            <div class="stat-label">Customers</div>
+            <div class="stat-sub text-danger" id="kpi-high-risk">Loading…</div>
+          </div>
+        </div>
+
+        <div class="stat-card teal">
+          <div class="stat-icon teal">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" id="kpi-avg-risk">—</div>
+            <div class="stat-label">Avg Risk Score</div>
+            <div class="stat-sub text-success" id="kpi-model-status">ML Active</div>
+          </div>
+        </div>
+
+      </div><!-- /kpi-grid -->
+
+      <!-- Charts row 1 -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem">
+
+        <div class="fd-card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Transaction Trend
+              <small>Last 7 days</small>
+            </span>
+          </div>
+          <div class="chart-wrap"><canvas id="trend-chart"></canvas></div>
+        </div>
+
+        <div class="fd-card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Risk Distribution
+            </span>
+          </div>
+          <div class="chart-wrap"><canvas id="risk-dist-chart"></canvas></div>
+        </div>
+
+      </div>
+
+      <!-- Charts row 2 + recent alerts -->
+      <div style="display:grid;grid-template-columns:1fr 1.7fr;gap:1rem">
+
+        <div class="fd-card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Alert Types
+            </span>
+          </div>
+          <div class="chart-wrap"><canvas id="alert-types-chart"></canvas></div>
+        </div>
+
+        <div class="fd-card table-card">
+          <div class="table-toolbar" style="border:none;padding-bottom:0.75rem">
+            <span class="card-title" style="font-size:0.9rem;font-weight:600;color:var(--text)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;color:var(--text-2)"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              Recent Open Alerts
+            </span>
+            <button class="fd-btn fd-btn-ghost fd-btn-sm" onclick="showView('alerts')">View All</button>
+          </div>
+          <div class="table-wrap">
+            <table class="fd-table">
+              <thead>
+                <tr>
+                  <th>Severity</th>
+                  <th>Rule Triggered</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="top-alerts-body">
+                <tr><td colspan="5"><div class="empty-state" style="padding:1.5rem"><p>Loading alerts…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /view-dashboard -->
+
+
+    <!-- ─── TRANSACTIONS VIEW ────────────────────────────── -->
+    <div id="view-transactions" class="fd-view" style="display:none">
+
+      <div class="page-header">
+        <div>
+          <h2>Transactions</h2>
+          <p>All financial transactions with fraud analysis results</p>
+        </div>
+      </div>
+
+      <div class="fd-card table-card">
+        <div class="table-toolbar">
+          <div class="fd-input-wrap" style="max-width:260px">
+            <span class="fd-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input id="tx-search" class="fd-input with-icon" type="search"
+                   placeholder="Search ID, customer, merchant…" oninput="loadTransactions(1)">
+          </div>
+          <select id="tx-filter-status" class="fd-input" style="max-width:145px" onchange="loadTransactions(1)">
+            <option value="">All Statuses</option>
+            <option value="approved">Approved</option>
+            <option value="flagged">Flagged</option>
+            <option value="blocked">Blocked</option>
+            <option value="pending">Pending</option>
+          </select>
+          <select id="tx-filter-risk" class="fd-input" style="max-width:145px" onchange="loadTransactions(1)">
+            <option value="">All Risk Levels</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <span id="tx-total-info" class="table-info"></span>
+        </div>
+        <!-- Second filter row: amount range + country -->
+        <div class="table-toolbar" style="padding-top:0;border-top:none;gap:0.5rem">
+          <div class="fd-input-wrap" style="max-width:150px">
+            <span class="fd-input-icon" style="font-size:0.8rem;font-weight:600">$</span>
+            <input id="tx-filter-min" class="fd-input with-icon" type="number" min="0"
+                   placeholder="Min amount" oninput="loadTransactions(1)">
+          </div>
+          <div class="fd-input-wrap" style="max-width:150px">
+            <span class="fd-input-icon" style="font-size:0.8rem;font-weight:600">$</span>
+            <input id="tx-filter-max" class="fd-input with-icon" type="number" min="0"
+                   placeholder="Max amount" oninput="loadTransactions(1)">
+          </div>
+          <div class="fd-input-wrap" style="max-width:140px">
+            <span class="fd-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            </span>
+            <input id="tx-filter-country" class="fd-input with-icon" type="text" maxlength="10"
+                   placeholder="Country (e.g. US)" oninput="loadTransactions(1)">
+          </div>
+          <button class="fd-btn fd-btn-ghost fd-btn-sm" onclick="clearTxFilters()" style="margin-left:auto">Clear filters</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="fd-table">
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Customer</th>
+                <th>Amount</th>
+                <th>Merchant</th>
+                <th>Status</th>
+                <th>Risk Score</th>
+                <th>Level</th>
+                <th>Date / Time</th>
+              </tr>
+            </thead>
+            <tbody id="tx-tbody">
+              <tr><td colspan="8"><div class="empty-state" style="padding:2rem"><p>Loading transactions…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="tx-pagination" class="fd-pagination"></div>
+      </div>
+
+    </div><!-- /view-transactions -->
+
+
+    <!-- ─── ALERTS VIEW ──────────────────────────────────── -->
+    <div id="view-alerts" class="fd-view" style="display:none">
+
+      <div class="page-header">
+        <div>
+          <h2>Fraud Alerts</h2>
+          <p>Suspicious activity alerts requiring analyst review</p>
+        </div>
+      </div>
+
+      <div class="fd-card table-card">
+        <div class="table-toolbar">
+          <select id="al-filter-sev" class="fd-input" style="max-width:145px" onchange="loadAlerts(1)">
+            <option value="">All Severities</option>
+            <option value="critical">Critical</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+          <select id="al-filter-resolved" class="fd-input" style="max-width:145px" onchange="loadAlerts(1)">
+            <option value="">All</option>
+            <option value="false">Open</option>
+            <option value="true">Resolved</option>
+          </select>
+          <span id="alerts-total-info" class="table-info"></span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="fd-table">
+            <thead>
+              <tr>
+                <th>Severity</th>
+                <th>Alert Type</th>
+                <th>Description</th>
+                <th>Transaction</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="alerts-tbody">
+              <tr><td colspan="7"><div class="empty-state" style="padding:2rem"><p>Loading alerts…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="alerts-pagination" class="fd-pagination"></div>
+      </div>
+
+    </div><!-- /view-alerts -->
+
+
+    <!-- ─── SUBMIT TRANSACTION VIEW ──────────────────────── -->
+    <div id="view-submit" class="fd-view" style="display:none">
+
+      <div class="page-header">
+        <div>
+          <h2>Submit Transaction</h2>
+          <p>Process a new transaction through the fraud detection engine</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:1050px">
+
+        <!-- Form -->
+        <div class="fd-card">
+          <div class="card-header">
+            <span class="card-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Transaction Details
+            </span>
+          </div>
+
+          <form id="tx-form" onsubmit="submitTransaction(event)">
+
+            <div class="fd-field">
+              <label class="fd-label">Customer *</label>
+              <select id="tx-customer-id" class="fd-input" required>
+                <option value="">Select customer…</option>
+              </select>
+            </div>
+
+            <div class="fd-field">
+              <label class="fd-label">Amount (USD) *</label>
+              <div class="fd-input-wrap">
+                <span class="fd-input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </span>
+                <input id="tx-amount" class="fd-input with-icon" type="number"
+                       min="0.01" step="0.01" placeholder="e.g. 250.00" required>
+              </div>
+            </div>
+
+            <div class="fd-field">
+              <label class="fd-label">Merchant Name *</label>
+              <div class="fd-input-wrap">
+                <span class="fd-input-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </span>
+                <input id="tx-merchant" class="fd-input with-icon" type="text"
+                       placeholder="e.g. Amazon" required>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+              <div class="fd-field">
+                <label class="fd-label">Category</label>
+                <select id="tx-category" class="fd-input">
+                  <option value="retail">Retail</option>
+                  <option value="food">Food &amp; Dining</option>
+                  <option value="entertainment">Entertainment</option>
+                  <option value="fuel">Fuel</option>
+                  <option value="pharmacy">Pharmacy</option>
+                  <option value="electronics">Electronics</option>
+                  <option value="travel">Travel</option>
+                  <option value="transport">Transport</option>
+                  <option value="cryptocurrency">⚠ Cryptocurrency</option>
+                  <option value="gambling">⚠ Gambling</option>
+                  <option value="money_transfer">⚠ Money Transfer</option>
+                  <option value="general">General</option>
+                </select>
+              </div>
+              <div class="fd-field">
+                <label class="fd-label">Location</label>
+                <select id="tx-location" class="fd-input">
+                  <option value="US">🇺🇸 United States</option>
+                  <option value="UK">🇬🇧 United Kingdom</option>
+                  <option value="CA">🇨🇦 Canada</option>
+                  <option value="AU">🇦🇺 Australia</option>
+                  <option value="DE">🇩🇪 Germany</option>
+                  <option value="FR">🇫🇷 France</option>
+                  <option value="NG">🇳🇬 Nigeria</option>
+                  <option value="RU">🇷🇺 Russia</option>
+                  <option value="CN">🇨🇳 China</option>
+                  <option value="BR">🇧🇷 Brazil</option>
+                  <option value="SG">🇸🇬 Singapore</option>
+                  <option value="JP">🇯🇵 Japan</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+              <div class="fd-field">
+                <label class="fd-label">Card Type</label>
+                <select id="tx-card-type" class="fd-input">
+                  <option value="credit">Credit Card</option>
+                  <option value="debit">Debit Card</option>
+                  <option value="prepaid">Prepaid</option>
+                </select>
+              </div>
+              <div class="fd-field">
+                <label class="fd-label">Transaction Type</label>
+                <select id="tx-type" class="fd-input">
+                  <option value="purchase">Purchase</option>
+                  <option value="transfer">Transfer</option>
+                  <option value="withdrawal">Withdrawal</option>
+                </select>
+              </div>
+            </div>
+
+            <button id="submit-tx-btn" type="submit" class="fd-btn fd-btn-primary"
+                    style="width:100%;justify-content:center;padding:0.65rem;margin-top:0.25rem">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Analyze &amp; Submit
+            </button>
+
+          </form>
+        </div>
+
+        <!-- Result + Scenarios -->
+        <div style="display:flex;flex-direction:column;gap:1rem">
+
+          <div id="result-placeholder" class="fd-card" style="text-align:center;padding:3rem 1.5rem;flex:1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:42px;height:42px;color:var(--text-3);margin:0 auto 1rem;display:block"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <h4 style="font-size:0.95rem;color:var(--text-2);font-weight:600">Awaiting Transaction</h4>
+            <p style="font-size:0.8rem;color:var(--text-3);margin-top:0.4rem">
+              Submit a transaction to see the full fraud analysis — rule violations, ML anomaly score, and recommendation.
+            </p>
+          </div>
+
+          <div id="result-box" style="display:none"></div>
+
+          <!-- Test Scenarios -->
+          <div class="fd-card">
+            <div class="card-header" style="margin-bottom:0.75rem">
+              <span class="card-title" style="font-size:0.82rem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Fraud Test Scenarios
+              </span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.5rem;font-size:0.78rem">
+              <div style="padding:0.5rem 0.65rem;background:var(--danger-dim);border-radius:6px;border:1px solid rgba(214,69,69,0.15);color:var(--danger)">
+                <strong>Large Amount:</strong> <span style="color:var(--text-2)">Submit amount &gt; $10,000 (e.g. $15,000)</span>
+              </div>
+              <div style="padding:0.5rem 0.65rem;background:var(--danger-dim);border-radius:6px;border:1px solid rgba(214,69,69,0.15);color:var(--danger)">
+                <strong>High-Risk Merchant:</strong> <span style="color:var(--text-2)">Choose Cryptocurrency or Gambling category</span>
+              </div>
+              <div style="padding:0.5rem 0.65rem;background:var(--danger-dim);border-radius:6px;border:1px solid rgba(214,69,69,0.15);color:var(--danger)">
+                <strong>International:</strong> <span style="color:var(--text-2)">US customer + Location = NG or RU</span>
+              </div>
+              <div style="padding:0.5rem 0.65rem;background:var(--danger-dim);border-radius:6px;border:1px solid rgba(214,69,69,0.15);color:var(--danger)">
+                <strong>Round Amount:</strong> <span style="color:var(--text-2)">Exact numbers like $5,000 or $25,000</span>
+              </div>
+              <div style="padding:0.5rem 0.65rem;background:var(--success-dim);border-radius:6px;border:1px solid rgba(76,175,80,0.15);color:var(--success)">
+                <strong>Normal:</strong> <span style="color:var(--text-2)">$50–$500, retail, US, credit card</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /view-submit -->
+
+
+    <!-- ─── CUSTOMERS VIEW ───────────────────────────────── -->
+    <div id="view-customers" class="fd-view" style="display:none">
+
+      <div class="page-header">
+        <div>
+          <h2>Customers</h2>
+          <p>Registered customers and their risk profiles</p>
+        </div>
+      </div>
+
+      <div class="fd-card table-card">
+        <div class="table-toolbar">
+          <div class="fd-input-wrap" style="max-width:260px">
+            <span class="fd-input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </span>
+            <input id="cust-search" class="fd-input with-icon" type="search"
+                   placeholder="Search name, ID, email…" oninput="loadCustomers(1)">
+          </div>
+          <select id="cust-risk" class="fd-input" style="max-width:145px" onchange="loadCustomers(1)">
+            <option value="">All Risk Levels</option>
+            <option value="high">High Risk</option>
+            <option value="medium">Medium Risk</option>
+            <option value="low">Low Risk</option>
+          </select>
+          <span id="customers-total-info" class="table-info"></span>
+        </div>
+
+        <div class="table-wrap">
+          <table class="fd-table">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Customer ID</th>
+                <th>Location</th>
+                <th>Account Type</th>
+                <th>Avg Transaction</th>
+                <th>Total TXs</th>
+                <th>Risk Level</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody">
+              <tr><td colspan="7"><div class="empty-state" style="padding:2rem"><p>Loading customers…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div id="customers-pagination" class="fd-pagination"></div>
+      </div>
+
+    </div><!-- /view-customers -->
+
+
+    <!-- ─── RULES VIEW ───────────────────────────────────── -->
+    <div id="view-rules" class="fd-view" style="display:none">
+
+      <div class="page-header">
+        <div>
+          <h2>Detection Rules</h2>
+          <p>Configure fraud detection thresholds and rule weights</p>
+        </div>
+        <button class="fd-btn fd-btn-ghost fd-btn-sm" onclick="loadRules()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+
+      <div class="fd-card table-card" style="margin-bottom:1rem">
+        <div class="table-wrap">
+          <table class="fd-table">
+            <thead>
+              <tr>
+                <th>Rule Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Threshold</th>
+                <th>Weight (0–1)</th>
+                <th>Active</th>
+              </tr>
+            </thead>
+            <tbody id="rules-tbody">
+              <tr><td colspan="6"><div class="empty-state" style="padding:2rem"><p>Loading rules…</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>How scoring works:</strong>
+        Combined Risk Score = <strong>0.40 × Rule Score</strong> + <strong>0.60 × ML Score</strong>.
+        Transactions above <strong>50%</strong> risk are flagged for review; above <strong>80%</strong> are blocked automatically.
+        Rule violations are additive (capped at 1.0). The ML pipeline uses an Isolation Forest (unsupervised) combined with a Random Forest classifier (supervised) trained on 8,500 synthetic transaction records.
+      </div>
+
+    </div><!-- /view-rules -->
+
+    <!-- ─── OFAC SANCTIONS VIEW ──────────────────────── -->
+    <div id="view-ofac" class="fd-view" style="display:none">
+
+      <!-- Page header -->
+      <div class="page-header">
+        <div>
+          <h2>OFAC Sanctions Screening</h2>
+          <p>US Treasury SDN List — <span id="ofac-header-count">—</span> entries · refreshed daily at 02:00</p>
+        </div>
+        <div style="display:flex;gap:0.5rem;align-items:center">
+          <span id="ofac-service-pill" class="badge badge-approved" style="font-size:0.72rem">Checking…</span>
+          <button class="fd-btn fd-btn-ghost fd-btn-sm" onclick="loadOfacView()">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+          <button class="fd-btn fd-btn-danger fd-btn-sm" id="ofac-refresh-btn" onclick="triggerOfacRefresh()" style="display:none">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+            Force Refresh SDN List
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="gateway-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.1rem">
+        <div class="gw-stat">
+          <div class="gw-stat-icon blue"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <div><div class="gw-stat-val" id="ofac-total-entries">—</div><div class="gw-stat-lbl">SDN Entries</div></div>
+        </div>
+        <div class="gw-stat">
+          <div class="gw-stat-icon green"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div><div class="gw-stat-val" id="ofac-last-update" style="font-size:0.82rem">—</div><div class="gw-stat-lbl">Last Refresh</div></div>
+        </div>
+        <div class="gw-stat">
+          <div class="gw-stat-icon yellow"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div>
+          <div><div class="gw-stat-val" id="ofac-age-violations">—</div><div class="gw-stat-lbl">Age Violations</div></div>
+        </div>
+        <div class="gw-stat">
+          <div class="gw-stat-icon red"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div><div class="gw-stat-val" id="ofac-threshold-display">82%</div><div class="gw-stat-lbl">Match Threshold</div></div>
+        </div>
+      </div>
+
+      <!-- ── Main layout: SDN List (left) + Screening panel (right) ── -->
+      <div class="ofac-main-layout">
+
+        <!-- LEFT: SDN list with search bar -->
+        <div class="fd-card table-card" style="min-width:0">
+
+          <!-- Toolbar: search + filters -->
+          <div class="table-toolbar" style="flex-wrap:wrap;gap:0.5rem">
+
+            <!-- Primary search bar — large & prominent -->
+            <div class="fd-input-wrap" style="flex:1;min-width:220px">
+              <span class="fd-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </span>
+              <input id="sdn-search" class="fd-input with-icon" type="search"
+                     placeholder="Search name — press Enter to screen for sanctions match…"
+                     oninput="debouncedSdnSearch()"
+                     onkeydown="if(event.key==='Enter'){ copyToScreenInput(this.value); checkOfacName(); }"
+                     autocomplete="off"
+                     style="font-size:0.88rem">
+            </div>
+
+            <!-- Type filter -->
+            <select id="sdn-type-filter" class="fd-input" style="max-width:140px;font-size:0.82rem" onchange="loadSdnList(1)">
+              <option value="">All Types</option>
+              <option value="individual">Individual</option>
+              <option value="entity">Entity</option>
+              <option value="vessel">Vessel</option>
+              <option value="aircraft">Aircraft</option>
+            </select>
+
+            <!-- Programme filter -->
+            <select id="sdn-program-filter" class="fd-input" style="max-width:155px;font-size:0.82rem" onchange="loadSdnList(1)">
+              <option value="">All Programmes</option>
+            </select>
+
+            <span id="sdn-total-info" class="table-info" style="white-space:nowrap"></span>
+          </div>
+
+          <!-- SDN table -->
+          <div class="table-wrap">
+            <table class="fd-table">
+              <thead>
+                <tr>
+                  <th style="width:44px">#</th>
+                  <th>SDN Name</th>
+                  <th style="width:100px">Type</th>
+                  <th style="width:130px">Programme</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="sdn-list-tbody">
+                <tr><td colspan="5"><div class="empty-state" style="padding:2rem"><p>Loading SDN list…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="sdn-pagination" class="fd-pagination"></div>
+        </div>
+
+        <!-- RIGHT: Screening panel -->
+        <div class="ofac-screen-col">
+
+          <!-- Screening result -->
+          <div id="ofac-check-result" style="margin-bottom:0.75rem">
+            <div class="ofac-result-placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <div style="font-size:0.86rem;font-weight:600;color:var(--text-2)">Awaiting Screening</div>
+              <div style="font-size:0.75rem;color:var(--text-3);margin-top:0.25rem">Type a name &amp; press Enter, or click Screen</div>
+            </div>
+          </div>
+
+          <!-- Controls card -->
+          <div class="fd-card" style="padding:1rem">
+
+            <!-- Name input inside the panel (synced with search bar) -->
+            <div class="card-header" style="margin-bottom:0.85rem;padding-bottom:0.7rem;border-bottom:1px solid var(--border)">
+              <span class="card-title" style="font-size:0.82rem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Name Screening
+              </span>
+            </div>
+
+            <div class="fd-input-wrap" style="margin-bottom:0.65rem">
+              <span class="fd-input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </span>
+              <input id="ofac-check-name" class="fd-input with-icon" type="text"
+                     placeholder="Full name to screen…"
+                     oninput="copyToSdnSearch(this.value); debouncedSdnSearch();"
+                     onkeydown="if(event.key==='Enter') checkOfacName()"
+                     autocomplete="off" style="font-size:0.84rem">
+            </div>
+
+            <!-- Threshold slider -->
+            <div style="margin-bottom:0.75rem">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem">
+                <span style="font-size:0.73rem;color:var(--text-3);font-weight:600">Match Sensitivity</span>
+                <span class="ofac-thresh-badge" id="ofac-thresh-val">82%</span>
+              </div>
+              <input id="ofac-threshold" type="range" min="50" max="99" value="82"
+                     oninput="ofacThresholdUpdate(this.value)"
+                     style="width:100%;accent-color:var(--accent);cursor:pointer">
+              <div style="display:flex;justify-content:space-between;margin-top:0.2rem">
+                <span style="font-size:0.67rem;color:var(--text-3)">Loose 50%</span>
+                <span style="font-size:0.67rem;color:var(--text-3)">Strict 99%</span>
+              </div>
+            </div>
+
+            <!-- Action buttons -->
+            <div style="display:flex;gap:0.45rem;margin-bottom:0.85rem">
+              <button class="fd-btn fd-btn-primary" onclick="checkOfacName()" style="flex:1;justify-content:center;font-size:0.82rem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Screen Name
+              </button>
+              <button class="fd-btn fd-btn-ghost" onclick="clearOfacScreen()" style="font-size:0.82rem">Clear</button>
+            </div>
+
+            <!-- Quick tests -->
+            <div>
+              <div style="font-size:0.69rem;color:var(--text-3);margin-bottom:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em">Quick Tests</div>
+              <div style="display:flex;flex-wrap:wrap;gap:0.3rem">
+                <button class="suggestion-btn" style="font-size:0.71rem;padding:0.18rem 0.5rem" onclick="ofacQuickTest('Wagner Group')">Wagner Group</button>
+                <button class="suggestion-btn" style="font-size:0.71rem;padding:0.18rem 0.5rem" onclick="ofacQuickTest('Kim Jong Un')">Kim Jong Un</button>
+                <button class="suggestion-btn" style="font-size:0.71rem;padding:0.18rem 0.5rem" onclick="ofacQuickTest('Hezbollah')">Hezbollah</button>
+                <button class="suggestion-btn" style="font-size:0.71rem;padding:0.18rem 0.5rem" onclick="ofacQuickTest('PDVSA')">PDVSA</button>
+                <button class="suggestion-btn" style="font-size:0.71rem;padding:0.18rem 0.5rem" onclick="ofacQuickTest('Sberbank')">Sberbank</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Regulatory notice -->
+          <div class="callout" style="margin-top:0.75rem;font-size:0.76rem;line-height:1.6">
+            <strong>⚖️ BSA / OFAC:</strong> Required under Executive Orders
+            <strong>13224</strong> (terrorism), <strong>13599</strong> (Iran), <strong>14024</strong> (Russia).
+            A match triggers a <strong>hard block</strong> + CRITICAL alert.
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Bottom row: Age Violations + Update History ── -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem">
+
+        <!-- Age Violations -->
+        <div class="fd-card">
+          <div class="card-header" style="margin-bottom:0.85rem">
+            <span class="card-title" style="font-size:0.85rem">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Age Restriction Violations
+            </span>
+            <span id="age-viol-count-badge" class="badge badge-blocked" style="display:none">0</span>
+          </div>
+          <p style="font-size:0.78rem;color:var(--text-2);margin-bottom:0.85rem;line-height:1.6">
+            Customers <strong style="color:var(--danger)">under 18</strong> or <strong style="color:var(--danger)">over 100</strong> — automatically blocked before ML analysis.
+          </p>
+          <div id="age-violations-table-wrap"></div>
+        </div>
+
+        <!-- Update History -->
+        <div class="fd-card table-card">
+          <div class="table-toolbar" style="border:none;padding-bottom:0.65rem">
+            <span class="card-title" style="font-size:0.85rem">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;color:var(--text-2)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              SDN Download History
+            </span>
+            <span style="font-size:0.72rem;color:var(--text-3)">Daily at 02:00</span>
+          </div>
+          <div class="table-wrap">
+            <table class="fd-table">
+              <thead>
+                <tr>
+                  <th>#</th><th>Status</th><th>Added</th><th>Total</th><th>Error</th><th>Updated At</th>
+                </tr>
+              </thead>
+              <tbody id="ofac-history-tbody">
+                <tr><td colspan="6"><div class="empty-state" style="padding:1.5rem"><p>Loading…</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div><!-- /view-ofac -->
+
+    <!-- ─── AI ASSISTANT VIEW ─────────────────────────── -->
+    <div id="view-assistant" class="fd-view" style="display:none">
+
+      <div class="page-header">
+        <div>
+          <h2>AI Fraud Assistant</h2>
+          <p>RAG-powered expert on fraud patterns, detection rules &amp; compliance</p>
+        </div>
+        <button class="fd-btn fd-btn-ghost fd-btn-sm" onclick="clearChat()">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+          New Chat
+        </button>
+      </div>
+
+      <div class="chat-layout">
+
+        <!-- Chat Main Panel -->
+        <div class="chat-panel fd-card">
+          <div class="chat-panel-header">
+            <div class="chat-model-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+              FraudGuard RAG · TF-IDF + Knowledge Base
+            </div>
+            <div id="chat-confidence-bar" style="display:none;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-3)">
+              Confidence: <span id="chat-confidence-val">—</span>
+            </div>
+          </div>
+
+          <div id="chat-messages" class="chat-messages">
+            <!-- Welcome message -->
+            <div class="chat-msg bot">
+              <div class="msg-avatar">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <div class="msg-content">
+                <div class="msg-bubble">
+                  <p>👋 Hello! I'm <strong>FraudGuard AI Assistant</strong>, your expert on financial fraud detection.</p>
+                  <p style="margin-top:0.5rem">I can help you with:</p>
+                  <ul style="margin:0.4rem 0 0 1rem;line-height:1.7">
+                    <li>🔍 <strong>Fraud Patterns</strong> — velocity attacks, card testing, account takeover</li>
+                    <li>⚙️ <strong>Detection Rules</strong> — thresholds, weights, risk score interpretation</li>
+                    <li>📋 <strong>Regulatory Compliance</strong> — AML, PCI DSS, BSA, FATF guidelines</li>
+                    <li>📊 <strong>Risk Scoring</strong> — combined scores and recommended actions</li>
+                  </ul>
+                  <p style="margin-top:0.5rem">What would you like to know?</p>
+                </div>
+                <div class="msg-meta">FraudGuard AI · Ready</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-bar">
+            <input id="chat-input" class="fd-input" type="text"
+                   placeholder="Ask about fraud patterns, detection rules, compliance…"
+                   onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+                   maxlength="1000" autocomplete="off">
+            <button id="chat-send-btn" class="chat-send-btn" onclick="sendMessage()" title="Send message">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Suggestions Sidebar -->
+        <div class="chat-sidebar">
+
+          <div class="fd-card" style="margin-bottom:0.85rem">
+            <div class="card-header" style="margin-bottom:0.75rem">
+              <span class="card-title" style="font-size:0.82rem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Quick Questions
+              </span>
+            </div>
+            <div id="suggestions-container" class="suggestions-list">
+              <div style="font-size:0.78rem;color:var(--text-3)">Loading suggestions…</div>
+            </div>
+          </div>
+
+          <div class="fd-card" id="assistant-status-card">
+            <div class="card-header" style="margin-bottom:0.75rem">
+              <span class="card-title" style="font-size:0.82rem">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Claude AI
+              </span>
+            </div>
+            <div id="kb-stats" style="font-size:0.8rem;color:var(--text-2);line-height:1.7">
+              <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value text-success" id="kb-status">Checking…</span></div>
+              <div class="detail-row"><span class="detail-label">Model</span><span class="detail-value" id="kb-docs">—</span></div>
+              <div class="detail-row"><span class="detail-label">Context</span><span class="detail-value" id="kb-chunks">—</span></div>
+              <div class="detail-row"><span class="detail-label">Provider</span><span class="detail-value" id="kb-model">—</span></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /view-assistant -->
+
+    <!-- ══════════════════════════════════════════════════
+         LIVE DEMO VIEW
+    ══════════════════════════════════════════════════ -->
+    <div id="view-demo" class="fd-view" style="display:none">
+
+      <div class="demo-layout">
+
+        <!-- ── LEFT: Scenario Picker ── -->
+        <div class="demo-panel">
+          <div class="demo-panel-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Choose a Scenario
+          </div>
+
+          <div class="demo-scenarios" id="demo-scenarios">
+
+            <div class="demo-scenario active" data-scenario="ofac" onclick="selectScenario('ofac')">
+              <div class="demo-scenario-badge" style="background:rgba(214,69,69,0.15);color:#D64545">BLOCKED</div>
+              <div class="demo-scenario-title">OFAC Sanctions Match</div>
+              <div class="demo-scenario-desc">Customer name matches the US Treasury SDN list. Transaction immediately blocked before ML scoring.</div>
+              <div class="demo-scenario-tags">
+                <span class="demo-tag">OFAC Match</span>
+                <span class="demo-tag">Score 1.0</span>
+                <span class="demo-tag">CRITICAL Alert</span>
+              </div>
+            </div>
+
+            <div class="demo-scenario" data-scenario="high_amount" onclick="selectScenario('high_amount')">
+              <div class="demo-scenario-badge" style="background:rgba(214,69,69,0.15);color:#D64545">BLOCKED</div>
+              <div class="demo-scenario-title">High-Value Wire Transfer</div>
+              <div class="demo-scenario-desc">$85,000 international wire from a high-risk country triggers multiple rules and pushes the combined score above 0.75.</div>
+              <div class="demo-scenario-tags">
+                <span class="demo-tag">HIGH_AMOUNT</span>
+                <span class="demo-tag">HIGH_RISK_COUNTRY</span>
+                <span class="demo-tag">NEW_DEVICE</span>
+              </div>
+            </div>
+
+            <div class="demo-scenario" data-scenario="velocity" onclick="selectScenario('velocity')">
+              <div class="demo-scenario-badge" style="background:rgba(251,146,60,0.15);color:#fb923c">FLAGGED</div>
+              <div class="demo-scenario-title">Velocity Attack</div>
+              <div class="demo-scenario-desc">Multiple rapid transactions from the same customer in a short window trigger HIGH_FREQUENCY and RAPID_SUCCESSION rules.</div>
+              <div class="demo-scenario-tags">
+                <span class="demo-tag">HIGH_FREQUENCY</span>
+                <span class="demo-tag">RAPID_SUCCESSION</span>
+              </div>
+            </div>
+
+            <div class="demo-scenario" data-scenario="age" onclick="selectScenario('age')">
+              <div class="demo-scenario-badge" style="background:rgba(214,69,69,0.15);color:#D64545">BLOCKED</div>
+              <div class="demo-scenario-title">Age Restriction Violation</div>
+              <div class="demo-scenario-desc">Customer is under 18 years old. Compliance pre-check immediately blocks the transaction before any scoring.</div>
+              <div class="demo-scenario-tags">
+                <span class="demo-tag">AGE_RESTRICTION</span>
+                <span class="demo-tag">Compliance Block</span>
+              </div>
+            </div>
+
+            <div class="demo-scenario" data-scenario="normal" onclick="selectScenario('normal')">
+              <div class="demo-scenario-badge" style="background:rgba(34,197,94,0.15);color:#22c55e">APPROVED</div>
+              <div class="demo-scenario-title">Legitimate Transaction</div>
+              <div class="demo-scenario-desc">A normal low-value domestic purchase from a known customer. All checks pass, transaction is approved.</div>
+              <div class="demo-scenario-tags">
+                <span class="demo-tag">No violations</span>
+                <span class="demo-tag">Low risk</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── MIDDLE: Transaction Form ── -->
+        <div class="demo-panel">
+          <div class="demo-panel-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Transaction Payload
+          </div>
+
+          <div class="demo-form">
+            <div class="demo-form-row">
+              <div class="demo-form-field">
+                <label>Customer ID</label>
+                <input id="demo-customer-id" class="fd-input" type="text" value="CUST1001">
+              </div>
+              <div class="demo-form-field">
+                <label>Amount (USD)</label>
+                <input id="demo-amount" class="fd-input" type="number" value="85000">
+              </div>
+            </div>
+            <div class="demo-form-row">
+              <div class="demo-form-field">
+                <label>Merchant Name</label>
+                <input id="demo-merchant" class="fd-input" type="text" value="Wire Transfer Corp">
+              </div>
+              <div class="demo-form-field">
+                <label>Location (Country Code)</label>
+                <input id="demo-location" class="fd-input" type="text" value="RU" maxlength="2">
+              </div>
+            </div>
+            <div class="demo-form-row">
+              <div class="demo-form-field">
+                <label>Card Type</label>
+                <select id="demo-card-type" class="fd-input">
+                  <option value="credit">Credit</option>
+                  <option value="debit">Debit</option>
+                  <option value="prepaid">Prepaid</option>
+                </select>
+              </div>
+              <div class="demo-form-field">
+                <label>Device ID</label>
+                <input id="demo-device" class="fd-input" type="text" value="UNKNOWN-9x8f">
+              </div>
+            </div>
+
+            <div class="demo-scenario-explain" id="demo-explain">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span id="demo-explain-text">This transaction triggers multiple red flags: high amount, high-risk country, and unknown device.</span>
+            </div>
+
+            <button class="demo-run-btn" id="demo-run-btn" onclick="runDemo()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Fraud Analysis
+            </button>
+          </div>
+        </div>
+
+        <!-- ── RIGHT: Result Panel ── -->
+        <div class="demo-panel">
+          <div class="demo-panel-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Analysis Result
+          </div>
+
+          <div id="demo-result-empty" class="demo-result-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:40px;height:40px;color:var(--text-3)"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <div>Select a scenario and click<br><strong>Run Fraud Analysis</strong></div>
+          </div>
+
+          <div id="demo-result" style="display:none">
+
+            <!-- Status banner -->
+            <div class="demo-status-banner" id="demo-status-banner">
+              <div class="demo-status-icon" id="demo-status-icon"></div>
+              <div>
+                <div class="demo-status-label" id="demo-status-label">BLOCKED</div>
+                <div class="demo-status-sub" id="demo-status-sub">Transaction ID: —</div>
+              </div>
+            </div>
+
+            <!-- Score breakdown -->
+            <div class="demo-scores">
+              <div class="demo-score-row">
+                <span class="demo-score-name">Rule Score</span>
+                <div class="demo-score-bar-wrap">
+                  <div class="demo-score-bar" id="demo-bar-rule"></div>
+                </div>
+                <span class="demo-score-val" id="demo-val-rule">—</span>
+              </div>
+              <div class="demo-score-row">
+                <span class="demo-score-name">ML Score</span>
+                <div class="demo-score-bar-wrap">
+                  <div class="demo-score-bar" id="demo-bar-ml"></div>
+                </div>
+                <span class="demo-score-val" id="demo-val-ml">—</span>
+              </div>
+              <div class="demo-score-row">
+                <span class="demo-score-name">Combined</span>
+                <div class="demo-score-bar-wrap">
+                  <div class="demo-score-bar demo-score-bar-combined" id="demo-bar-combined"></div>
+                </div>
+                <span class="demo-score-val" id="demo-val-combined">—</span>
+              </div>
+              <div class="demo-risk-level" id="demo-risk-level">CRITICAL</div>
+            </div>
+
+            <!-- Violations -->
+            <div class="demo-violations-title">Rules Triggered</div>
+            <div id="demo-violations" class="demo-violations"></div>
+
+            <!-- Pipeline steps -->
+            <div class="demo-violations-title" style="margin-top:1rem">Pipeline Stages</div>
+            <div class="demo-pipeline" id="demo-pipeline"></div>
+
+          </div>
+
+          <div id="demo-loading" style="display:none" class="demo-result-empty">
+            <div class="demo-spinner"></div>
+            <div>Analysing transaction…</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── How It Works section ── -->
+      <div class="demo-howit">
+        <div class="demo-howit-title">How the Fraud Detection Pipeline Works</div>
+        <div class="demo-howit-steps">
+          <div class="demo-howit-step">
+            <div class="demo-howit-num">0</div>
+            <div class="demo-howit-step-title">Compliance Pre-Check</div>
+            <div class="demo-howit-step-desc">Age restriction (18–100) and OFAC SDN screening. Fail-closed: any error blocks the transaction.</div>
+          </div>
+          <div class="demo-howit-arrow">→</div>
+          <div class="demo-howit-step">
+            <div class="demo-howit-num">1</div>
+            <div class="demo-howit-step-title">Velocity Count</div>
+            <div class="demo-howit-step-desc">Counts transactions in the last 1 hour for the same customer.</div>
+          </div>
+          <div class="demo-howit-arrow">→</div>
+          <div class="demo-howit-step">
+            <div class="demo-howit-num">2</div>
+            <div class="demo-howit-step-title">Rule Engine</div>
+            <div class="demo-howit-step-desc">Evaluates 6 configurable rules. Each has a weight. Output: rule_score ∈ [0, 1].</div>
+          </div>
+          <div class="demo-howit-arrow">→</div>
+          <div class="demo-howit-step">
+            <div class="demo-howit-num">3</div>
+            <div class="demo-howit-step-title">ML Scoring</div>
+            <div class="demo-howit-step-desc">Isolation Forest model uses 14 features to compute anomaly probability.</div>
+          </div>
+          <div class="demo-howit-arrow">→</div>
+          <div class="demo-howit-step">
+            <div class="demo-howit-num">4</div>
+            <div class="demo-howit-step-title">Score Aggregation</div>
+            <div class="demo-howit-step-desc">combined = 0.40 × rule + 0.60 × ML. Mapped to low / medium / high / critical.</div>
+          </div>
+          <div class="demo-howit-arrow">→</div>
+          <div class="demo-howit-step">
+            <div class="demo-howit-num">5</div>
+            <div class="demo-howit-step-title">Disposition</div>
+            <div class="demo-howit-step-desc">≥0.75 → blocked · ≥0.45 → flagged · &lt;0.45 → approved. Alerts generated.</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /view-demo -->
+
+    <!-- ══════════════════════════════════════════════════
+         LIVE MONITOR VIEW
+    ══════════════════════════════════════════════════ -->
+    <div id="view-monitor" class="fd-view" style="display:none">
+
+      <!-- Page header -->
+      <div class="view-header" style="margin-bottom:1.25rem">
+        <div>
+          <h2 class="view-title">Live Monitor</h2>
+          <p class="view-sub">Real-time streaming analytics — auto-refreshes every 4 seconds</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <span id="mon-last-updated" style="font-size:0.72rem;color:var(--text-3)"></span>
+          <div id="mon-stream-status" class="mon-live-badge">
+            <span class="mon-live-dot offline"></span> Offline
+          </div>
+        </div>
+      </div>
+
+      <!-- Top KPI strip -->
+      <div class="monitor-kpi-row">
+        <div class="monitor-kpi" style="border-top:2px solid var(--accent)">
+          <div class="monitor-kpi-label">TX Rate</div>
+          <div class="monitor-kpi-val" id="mon-tx-rate">—</div>
+          <div class="monitor-kpi-sub">per minute (live)</div>
+        </div>
+        <div class="monitor-kpi" style="border-top:2px solid var(--text-3)">
+          <div class="monitor-kpi-label">Total (1hr)</div>
+          <div class="monitor-kpi-val" id="mon-total">—</div>
+          <div class="monitor-kpi-sub">transactions processed</div>
+        </div>
+        <div class="monitor-kpi" style="border-top:2px solid var(--danger)">
+          <div class="monitor-kpi-label">Blocked (1hr)</div>
+          <div class="monitor-kpi-val" id="mon-blocked" style="color:var(--danger)">—</div>
+          <div class="monitor-kpi-sub" id="mon-block-rate">— of total</div>
+        </div>
+        <div class="monitor-kpi" style="border-top:2px solid var(--warning)">
+          <div class="monitor-kpi-label">Flagged (1hr)</div>
+          <div class="monitor-kpi-val" id="mon-flagged" style="color:var(--warning)">—</div>
+          <div class="monitor-kpi-sub" id="mon-flag-rate">— of total</div>
+        </div>
+        <div class="monitor-kpi" style="border-top:2px solid var(--success)">
+          <div class="monitor-kpi-label">Approved (1hr)</div>
+          <div class="monitor-kpi-val" id="mon-approved" style="color:var(--success)">—</div>
+          <div class="monitor-kpi-sub">clean transactions</div>
+        </div>
+        <div class="monitor-kpi" style="border-top:2px solid var(--indigo)">
+          <div class="monitor-kpi-label">Volume (1hr)</div>
+          <div class="monitor-kpi-val" id="mon-amount">—</div>
+          <div class="monitor-kpi-sub">USD processed</div>
+        </div>
+      </div>
+
+      <div class="monitor-grid">
+
+        <!-- System alerts -->
+        <div class="monitor-panel" style="grid-column:1/-1">
+          <div class="monitor-panel-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--danger)"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            System Alerts
+          </div>
+          <div id="mon-sys-alerts" style="padding:0.75rem 1rem;font-size:0.8rem;color:var(--text-3)">No system alerts — all thresholds within normal range.</div>
+        </div>
+
+        <!-- Live event feed -->
+        <div class="monitor-panel">
+          <div class="monitor-panel-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--accent)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Live Event Feed
+            <span class="mon-feed-desc">most recent 25 transactions</span>
+          </div>
+          <div class="mon-feed-header">
+            <span>TIME</span>
+            <span>CUSTOMER</span>
+            <span>AMOUNT</span>
+            <span>SCORE</span>
+            <span>STATUS</span>
+            <span>ALERTS</span>
+          </div>
+          <div id="mon-feed" class="monitor-feed">
+            <div class="mon-feed-empty">Waiting for transactions… Run the Demo or submit a transaction to see live events.</div>
+          </div>
+        </div>
+
+        <!-- Network analysis -->
+        <div class="monitor-panel">
+          <div class="monitor-panel-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--accent)"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Network Analysis
+          </div>
+          <div id="mon-network" class="monitor-network-body">
+            <div style="color:var(--text-3);font-size:0.8rem;padding:1rem">Collecting network data…</div>
+          </div>
+        </div>
+
+        <!-- Threshold status -->
+        <div class="monitor-panel" style="grid-column:1/-1">
+          <div class="monitor-panel-hdr">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;color:var(--accent)"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+            Active Threshold Configuration
+          </div>
+          <div id="mon-thresholds" class="monitor-thresholds-grid"></div>
+        </div>
+
+      </div>
+    </div><!-- /view-monitor -->
+
+
+
+  </main><!-- /page-content -->
+
+</div><!-- /main-app -->
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- Scripts -->
+<script src="/static/js/chart.umd.min.js"></script>
+<script src="/static/js/app.js"></script>
+
+</body>
+</html>

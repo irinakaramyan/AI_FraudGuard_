@@ -1,0 +1,133 @@
+@startuml C4_Level2_Containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+LAYOUT_LEFT_RIGHT()
+
+title C4 Model — Level 2: Container Diagram\nFraudGuard AI Detection System
+
+AddElementTag("async",  $bgColor="#7c3aed", $fontColor="white", $borderColor="#6d28d9", $legendText="Async / Background")
+AddRelTag("async",      $textColor="#7c3aed", $lineColor="#7c3aed", $lineStyle=DashedLine())
+AddRelTag("internal",   $textColor="#0ea5e9", $lineColor="#0ea5e9")
+
+' ══════════════════════════════════════════
+'  ACTORS
+' ══════════════════════════════════════════
+Person(analyst, "Fraud Analyst",        "Monitors dashboard,\nreviews alerts.")
+Person(admin,   "Administrator",        "Manages users, rules.\nUses 2FA on login.")
+
+' ══════════════════════════════════════════
+'  EXTERNAL SYSTEMS
+' ══════════════════════════════════════════
+System_Ext(payment_gw,   "Payment Gateway",       "Sends transaction events.")
+System_Ext(ofac_source,  "OFAC SDN Source",       "U.S. Treasury CSV feed.")
+System_Ext(ai_api,       "Groq / Anthropic API",  "LLM for AI Assistant.")
+System_Ext(email_svc,    "Email / SMTP Service",  "Sends fraud notifications.")
+
+' ══════════════════════════════════════════
+'  SYSTEM BOUNDARY
+' ══════════════════════════════════════════
+System_Boundary(fraudguard, "FraudGuard AI Detection System") {
+
+    '── Frontend ──────────────────────────────
+    Container(spa, "Web Application",
+              "Vanilla JS / HTML5 / CSS3",
+              "Single-page application.\nDashboard, transactions,\nalerts, OFAC screening,\nAI Assistant chat UI.")
+
+    '── Entry Point ───────────────────────────
+    Container(api_gw, "API Layer",
+              "Flask 3.0 / Werkzeug / Gunicorn",
+              "Single entry point for all\nHTTP requests. Enforces JWT auth,\nCORS, rate limiting, security\nheaders, and request routing.")
+
+    '── Core Services ─────────────────────────
+    Container(auth_svc, "Auth Service",
+              "Flask-JWT-Extended / PyOTP",
+              "Handles login, JWT issuance,\nTOTP-based 2FA for admin accounts,\nbrute-force lockout.")
+
+    Container(tx_processor, "Transaction Processor",
+              "Python / Flask Blueprint",
+              "Validates, persists, and\norchestrates fraud analysis\nfor each submitted transaction.")
+
+    Container(fraud_engine, "Fraud Detection Engine",
+              "Python / scikit-learn / pandas",
+              "Combines ML anomaly score\nand rule-based score into a\nweighted combined risk score.\nDecides: approve / flag / block.")
+
+    Container(rules_engine, "Rule-Based Engine",
+              "Python / SQLAlchemy",
+              "Evaluates configurable rules:\nvelocity, amount thresholds,\nhigh-risk country, age\nrestrictions (18–100 rule).")
+
+    Container(ml_service, "ML Anomaly Detector",
+              "scikit-learn / Isolation Forest\n/ joblib / numpy",
+              "Trained Isolation Forest model.\nScores each transaction on\n14 engineered features.\nOutputs anomaly probability.")
+
+    Container(ofac_svc, "OFAC Checker Service",
+              "Python / APScheduler / Levenshtein",
+              "Screens customer names against\nSDN list using fuzzy matching.\nRefreshes list daily at 02:00.\nFail-closed on service error.")
+
+    Container(assistant_svc, "AI Assistant Service",
+              "Python / Groq SDK / Anthropic SDK",
+              "Routes analyst questions to\nLLM API. Maintains multi-turn\nconversation history. Expert\nfraud-domain system prompt.")
+
+    Container(alert_svc, "Alert & Notification Service",
+              "Python / Flask Blueprint",
+              "Generates fraud alerts with\nseverity levels. Stores alert\nrecords. Triggers email for\ncritical events.")
+
+    Container(scheduler, "Background Scheduler",
+              "APScheduler 3.x",
+              "Runs periodic background jobs:\nOFAC list refresh (daily),\nrisk score re-evaluation,\nsummary report generation.",
+              $tags="async")
+
+    '── Data Layer ────────────────────────────
+    ContainerDb(db, "Primary Database",
+                "MySQL 8 / SQLAlchemy ORM",
+                "Stores: users, customers,\ntransactions, risk scores,\nfraud alerts, fraud rules,\nOFAC entries & update logs.")
+
+    ContainerDb(audit_log, "Audit Log Store",
+                "MySQL / append-only table",
+                "Immutable audit trail of all\nuser actions, login events,\nrule changes, and alert\nresolution decisions.")
+}
+
+' ══════════════════════════════════════════
+'  RELATIONSHIPS
+' ══════════════════════════════════════════
+
+' Users → Frontend
+Rel(analyst,     spa,           "Uses",                             "HTTPS")
+Rel(admin,       spa,           "Uses (2FA required)",              "HTTPS")
+
+' Frontend → API Layer
+Rel(spa,         api_gw,        "All API calls",                    "HTTPS / JSON / JWT Bearer", $tags="internal")
+
+' API Layer → Services
+Rel(api_gw,      auth_svc,      "Authenticates requests",           "Internal / Python call", $tags="internal")
+Rel(api_gw,      tx_processor,  "Routes transaction requests",      "Internal / Python call", $tags="internal")
+Rel(api_gw,      alert_svc,     "Routes alert requests",            "Internal / Python call", $tags="internal")
+Rel(api_gw,      assistant_svc, "Routes AI chat messages",          "Internal / Python call", $tags="internal")
+Rel(api_gw,      ofac_svc,      "Routes OFAC screening requests",   "Internal / Python call", $tags="internal")
+
+' Transaction Processing Flow
+Rel(tx_processor, fraud_engine, "Submits transaction for analysis", "Internal / Python call", $tags="internal")
+Rel(fraud_engine, rules_engine, "Evaluates rule-based score",       "Internal / Python call", $tags="internal")
+Rel(fraud_engine, ml_service,   "Evaluates ML anomaly score",       "Internal / Python call", $tags="internal")
+Rel(fraud_engine, ofac_svc,     "Pre-screens customer name",        "Internal / Python call", $tags="internal")
+Rel(fraud_engine, alert_svc,    "Triggers alerts for violations",   "Internal / Python call", $tags="internal")
+
+' Data persistence
+Rel(auth_svc,    db,            "Reads/writes user & session data", "SQLAlchemy ORM", $tags="internal")
+Rel(tx_processor,db,            "Persists transactions",            "SQLAlchemy ORM", $tags="internal")
+Rel(fraud_engine,db,            "Writes risk scores",               "SQLAlchemy ORM", $tags="internal")
+Rel(alert_svc,   db,            "Writes fraud alerts",              "SQLAlchemy ORM", $tags="internal")
+Rel(ofac_svc,    db,            "Reads/writes OFAC SDN entries",    "SQLAlchemy ORM", $tags="internal")
+Rel(api_gw,      audit_log,     "Appends audit entries",            "SQLAlchemy ORM", $tags="internal")
+
+' Background jobs
+Rel(scheduler,   ofac_svc,      "Triggers daily SDN list refresh",  "APScheduler job", $tags="async")
+Rel(scheduler,   alert_svc,     "Triggers summary report job",      "APScheduler job", $tags="async")
+
+' External integrations
+Rel(payment_gw,  api_gw,        "Sends transaction events",         "HTTPS / REST [sync]")
+Rel(ofac_svc,    ofac_source,   "Downloads SDN CSV feed",           "HTTPS / CSV [async]", $tags="async")
+Rel(assistant_svc, ai_api,      "Forwards analyst queries",         "HTTPS / REST [sync]")
+Rel(alert_svc,   email_svc,     "Sends critical alert emails",      "SMTP / REST [async]", $tags="async")
+
+@enduml

@@ -1,0 +1,65 @@
+TITLE: Regulatory Compliance and Anti-Fraud Frameworks
+CATEGORY: regulatory
+
+## Bank Secrecy Act (BSA) / Anti-Money Laundering (AML)
+The BSA requires financial institutions to assist government agencies in detecting and preventing money laundering.
+Key requirements:
+- File Currency Transaction Reports (CTR) for cash transactions exceeding $10,000
+- File Suspicious Activity Reports (SAR) within 30 days of detecting suspicious activity
+- Maintain records of transactions for 5 years
+- Implement a Customer Identification Program (CIP)
+- Conduct ongoing customer due diligence (CDD) and enhanced due diligence (EDD) for high-risk customers
+
+SAR filing triggers relevant to this system:
+- Transactions with no apparent lawful purpose
+- Structuring transactions to avoid reporting thresholds
+- Rapid movement of funds (layering)
+- Transactions inconsistent with customer's business profile
+- Transactions involving known high-risk jurisdictions
+
+## Payment Card Industry Data Security Standard (PCI DSS)
+PCI DSS is the global security standard for organizations handling branded payment cards.
+Relevant requirements for fraud detection systems:
+- Requirement 10: Log and monitor all access to network resources and cardholder data
+- Requirement 11: Regularly test security systems and processes
+- Requirement 12: Maintain an information security policy
+- Requirement 6.4.3: All fraud monitoring systems must be included in vulnerability management
+- Fraud detection systems must maintain audit logs for minimum 12 months
+
+## General Data Protection Regulation (GDPR) / CCPA
+Privacy regulations affecting how transaction data is stored and processed.
+Key considerations:
+- Transactions contain PII — must be encrypted at rest and in transit
+- Purpose limitation: data collected for fraud detection cannot be used for marketing
+- Data minimization: store only what is necessary for fraud detection
+- Right to erasure: customer may request deletion (balance against 5-year AML retention)
+- Automated decision-making: customers have right to explanation for fraud-based account restrictions
+
+## Financial Action Task Force (FATF) Recommendations
+International standards for combating money laundering and terrorist financing.
+Relevant recommendations:
+- Recommendation 10: Customer due diligence (know your customer - KYC)
+- Recommendation 16: Wire transfer information requirements
+- Recommendation 20: Suspicious transaction reporting
+- High-risk countries on FATF grey/black list should trigger enhanced monitoring
+
+## Fraud Liability and Chargeback Rules
+Visa/Mastercard dispute resolution frameworks:
+- Merchants bear liability for CNP fraud in most cases (EMV liability shift)
+- Financial institution bears liability for card-present fraud on EMV-enabled terminals
+- Friendly fraud (customer disputes legitimate charge) is the fastest growing fraud category
+- Chargeback thresholds: Visa VAMP program targets merchants exceeding 0.9% chargeback ratio
+- Time limits: Most chargebacks must be filed within 120 days of transaction
+
+## Recommended Monitoring Thresholds (Regulatory Alignment)
+- Flag any transaction or series of transactions over $10,000 (CTR alignment)
+- Flag structuring patterns: multiple transactions just under $10,000 within 24 hours
+- Flag wire transfers to FATF non-compliant jurisdictions regardless of amount
+- Flag dormant accounts (>90 days inactive) with sudden high-value activity
+- Flag new accounts (opened <30 days) with transactions exceeding $2,500
+
+## Customer Risk Classification (CDD Framework)
+Low Risk: Retail customers with established history, domestic transactions, salaried employment
+Medium Risk: Self-employed, private banking clients, cash-intensive businesses
+High Risk: PEPs (Politically Exposed Persons), customers from high-risk jurisdictions, complex ownership structures, history of suspicious activity
+The system assigns customer risk levels which influence the ML model's fraud probability calculation.

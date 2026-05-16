@@ -1,0 +1,17 @@
+# ── GitHub Linguist configuration ─────────────────────────────────────────────
+# This is a Python project. Frontend files are supporting assets.
+
+# Third-party vendored JS library (Chart.js — not our code)
+app/static/js/chart.umd.min.js  linguist-vendored=true
+
+# CSS stylesheet — visual styling only, not application logic
+app/static/css/*.css             linguist-vendored=true
+
+# Jinja2 HTML templates — rendered server-side by Python/Flask
+app/templates/*.html             linguist-vendored=true
+
+# Architecture documentation diagrams
+docs/**                          linguist-documentation=true
+
+# Ensure all Python files are always detected
+*.py                             linguist-detectable=true

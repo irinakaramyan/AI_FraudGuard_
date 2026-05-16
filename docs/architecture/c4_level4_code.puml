@@ -1,0 +1,350 @@
+@startuml C4_Level4_CodeDiagram
+!theme plain
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam classFontName "Inter, Arial, sans-serif"
+skinparam classBackgroundColor #1e293b
+skinparam classBorderColor #334155
+skinparam classFontColor #e2e8f0
+skinparam classArrowColor #38bdf8
+skinparam noteBackgroundColor #0f172a
+skinparam noteBorderColor #334155
+skinparam noteFontColor #94a3b8
+skinparam packageBackgroundColor #0f172a
+skinparam packageBorderColor #1e3a5f
+skinparam packageFontColor #38bdf8
+
+title C4 Model — Level 4: Code Diagram\nFraud Detection Core — Class & Module Structure
+
+' ══════════════════════════════════════════════════════════
+'  PACKAGE: Data Models (ORM)
+' ══════════════════════════════════════════════════════════
+package "app.models  (SQLAlchemy ORM)" #0f172a {
+
+    class Transaction {
+        + id            : int  {PK}
+        + transaction_id: str  {UUID, unique}
+        + customer_id   : int  {FK → customers}
+        + amount        : float
+        + currency      : str  {ISO-4217}
+        + merchant_name : str
+        + merchant_category: str
+        + location      : str
+        + ip_address    : str
+        + device_id     : str
+        + card_type     : str  {credit|debit|prepaid}
+        + transaction_type: str {purchase|transfer|...}
+        + timestamp     : datetime
+        + status        : str  {pending|approved|flagged|blocked}
+        + is_fraud      : bool
+        + is_reviewed   : bool
+        --
+        + to_dict() : dict
+    }
+
+    class Customer {
+        + id              : int   {PK}
+        + customer_id     : str   {unique}
+        + name            : str
+        + email           : str
+        + country         : str   {ISO-3166}
+        + date_of_birth   : date
+        + avg_tx_amount   : float
+        + total_transactions: int
+        + risk_level      : str   {low|medium|high}
+        + is_ofac_sanctioned: bool
+        --
+        + age             : int   {property, computed}
+        + to_dict()       : dict
+    }
+
+    class RiskScore {
+        + id            : int   {PK}
+        + transaction_id: int   {FK → transactions}
+        + rule_score    : float {0.0–1.0}
+        + ml_score      : float {0.0–1.0}
+        + combined_score: float {0.0–1.0}
+        + risk_level    : str   {low|medium|high|critical}
+        + rule_violations: str  {JSON list}
+        + ml_features   : str  {JSON dict}
+        + created_at    : datetime
+        --
+        + to_dict()     : dict
+    }
+
+    class FraudAlert {
+        + id              : int  {PK}
+        + alert_id        : str  {UUID}
+        + transaction_id  : int  {FK → transactions}
+        + alert_type      : str
+        + severity        : str  {low|medium|high|critical}
+        + description     : str
+        + risk_factors    : str  {JSON list}
+        + is_resolved     : bool
+        + resolved_by     : int  {FK → users}
+        + resolution_notes: str
+        + created_at      : datetime
+        --
+        + to_dict()       : dict
+    }
+
+    class FraudRule {
+        + id          : int   {PK}
+        + rule_name   : str   {unique}
+        + description : str
+        + rule_type   : str
+        + threshold   : float
+        + weight      : float
+        + is_active   : bool
+        --
+        + to_dict()   : dict
+    }
+
+    class User {
+        + id           : int  {PK}
+        + username     : str  {unique}
+        + email        : str  {unique}
+        + password_hash: str
+        + role         : str  {admin|analyst|viewer}
+        + is_active    : bool
+        + totp_secret  : str  {nullable — TOTP key}
+        + totp_enabled : bool {2FA status}
+        + last_login   : datetime
+        --
+        + set_password(pwd) : void
+        + check_password(pwd): bool
+        + to_dict()          : dict
+    }
+
+    class OFACEntry {
+        + id            : int  {PK}
+        + sdn_name      : str
+        + sdn_name_norm : str  {normalised, indexed}
+        + sdn_type      : str  {individual|entity|...}
+        + program       : str
+        + remarks       : str
+        --
+        + to_dict()     : dict
+    }
+}
+
+' ══════════════════════════════════════════════════════════
+'  PACKAGE: Fraud Detection Service
+' ══════════════════════════════════════════════════════════
+package "app.services.fraud_detector" #0a1628 {
+
+    class FraudDetector {
+        - _model       : IsolationForest  {lazy-loaded}
+        - _scaler      : StandardScaler
+        - _rules_cache : list[FraudRule]
+        --
+        + analyze_transaction(tx: Transaction, cust: Customer) : dict
+        - _ofac_precheck(cust: Customer)   : bool
+        - _check_age_restriction(cust)     : tuple[bool, str]
+        - _apply_rules(tx, cust)           : tuple[float, list]
+        - _compute_ml_score(tx, cust)      : float
+        - _combine_scores(rule_s, ml_s)    : float
+        - _determine_status(score)         : str
+        - _determine_risk_level(score)     : str
+        - _build_features(tx, cust)        : ndarray  {14 features}
+        - _generate_alerts(tx, violations) : void
+        - _load_model()                    : void
+        --
+        .. Score Weights ..
+        RULE_WEIGHT : float = 0.40
+        ML_WEIGHT   : float = 0.60
+        .. Risk Thresholds ..
+        CRITICAL_THRESHOLD : float = 0.75
+        HIGH_THRESHOLD     : float = 0.50
+        MEDIUM_THRESHOLD   : float = 0.25
+    }
+
+    class RuleEvaluator {
+        - HIGH_AMOUNT_THRESHOLD : float   {env: $10,000}
+        - FREQ_THRESHOLD        : int     {env: 5/hr}
+        --
+        + evaluate(tx: Transaction, cust: Customer, rules: list) : tuple[float, list[dict]]
+        - _check_high_amount(tx, rule)       : RuleResult
+        - _check_high_frequency(tx, rule)    : RuleResult
+        - _check_high_risk_country(tx, rule) : RuleResult
+        - _check_rapid_succession(tx, rule)  : RuleResult
+        - _check_new_device(tx, rule)        : RuleResult
+        - _check_round_amount(tx, rule)      : RuleResult
+        - _check_age_restriction(cust)       : RuleResult
+        - _weighted_score(results)           : float
+    }
+
+    class MLPredictor {
+        - _model  : IsolationForest  {scikit-learn}
+        - _scaler : StandardScaler
+        - MODEL_PATH : str = "ml/fraud_model.pkl"
+        --
+        + predict(features: ndarray) : float   {0.0–1.0}
+        + engineer_features(tx: Transaction, cust: Customer) : ndarray
+        - _load_model_from_disk()   : void
+        - _anomaly_to_probability(raw_score: float) : float
+        --
+        .. Feature Vector (14 dimensions) ..
+        [amount, hour, day_of_week,
+         is_weekend, amount_z_score,
+         tx_count_1h, tx_count_24h,
+         amount_ratio_to_avg,
+         is_high_risk_country,
+         is_new_device, is_round_amount,
+         customer_risk_level_enc,
+         card_type_enc, tx_type_enc]
+    }
+
+    class AlertFactory {
+        + create_alert(tx: Transaction, violations: list) : list[FraudAlert]
+        - _severity_from_score(score: float) : str
+        - _build_description(violations)    : str
+        - _is_critical(alert: FraudAlert)   : bool
+        + trigger_notification(alert)       : void  {async}
+    }
+}
+
+' ══════════════════════════════════════════════════════════
+'  PACKAGE: OFAC Service
+' ══════════════════════════════════════════════════════════
+package "app.services.ofac_service" #0a1628 {
+
+    class OFACService {
+        - MATCH_THRESHOLD : float = 0.80
+        - SDN_CSV_URL     : str   {Treasury endpoint}
+        --
+        + screen_name(name: str) : OFACResult
+        + refresh_list()         : RefreshResult
+        - _normalise(name: str)  : str
+        - _tokenise(name: str)   : list[str]
+        - _fuzzy_score(a, b)     : float  {Levenshtein}
+        - _download_csv()        : list[dict]
+        - _parse_csv(raw)        : list[SDNEntry]
+        - _upsert_entries(entries) : int
+        --
+        .. Fail-Closed Policy ..
+        on_service_error → BLOCK transaction
+        on_match ≥ 0.80  → FLAG as OFAC hit
+    }
+
+    class OFACResult {
+        + matched        : bool
+        + best_score     : float
+        + matched_name   : str
+        + sdn_type       : str
+        + program        : str
+        + action         : str  {allow|review|block}
+    }
+}
+
+' ══════════════════════════════════════════════════════════
+'  PACKAGE: Security Utilities
+' ══════════════════════════════════════════════════════════
+package "app.utils.security" #0a1628 {
+
+    class LoginThrottle {
+        - _store : dict  {ip+username → attempts}
+        - MAX_ATTEMPTS  : int = 5
+        - WINDOW_SECS   : int = 900  {15 min}
+        --
+        {static} is_locked(ip, username)    : bool
+        {static} record_failure(ip, username): int  {remaining}
+        {static} clear(ip, username)        : void
+        {static} seconds_remaining(ip, user): int
+    }
+
+    class TOTPManager {
+        .. PyOTP wrapper ..
+        {static} generate_secret()          : str   {base32}
+        {static} get_provisioning_uri(secret, username) : str
+        {static} verify_code(secret, code)  : bool  {±30s window}
+        {static} generate_qr_png_b64(uri)   : str   {data URI}
+    }
+
+    class InputSanitiser {
+        {static} safe_str(val, max_length)  : str
+        {static} sanitize_like(val)         : str   {escapes % _}
+        {static} safe_int(val, default, min, max) : int
+        {static} validate_password(pwd)     : list[str]  {errors}
+        {static} validate_email(email)      : bool
+    }
+}
+
+' ══════════════════════════════════════════════════════════
+'  RELATIONSHIPS
+' ══════════════════════════════════════════════════════════
+
+' ORM relationships
+Transaction "many" --> "1" Customer        : customer_id FK
+Transaction "1"    --> "many" RiskScore    : has risk scores
+Transaction "1"    --> "many" FraudAlert   : triggers alerts
+FraudAlert  "many" --> "1" User            : resolved_by FK
+
+' FraudDetector orchestrates
+FraudDetector ..> RuleEvaluator   : «uses»
+FraudDetector ..> MLPredictor     : «uses»
+FraudDetector ..> OFACService     : «uses»
+FraudDetector ..> AlertFactory    : «uses»
+FraudDetector ..> RiskScore       : «creates»
+FraudDetector ..> Transaction     : «reads/updates»
+FraudDetector ..> Customer        : «reads»
+
+' RuleEvaluator reads rules
+RuleEvaluator ..> FraudRule  : «reads active rules»
+
+' MLPredictor
+MLPredictor ..> Transaction  : «reads features»
+MLPredictor ..> Customer     : «reads profile»
+
+' OFAC
+OFACService ..> OFACEntry    : «reads/writes»
+OFACService ..> OFACResult   : «returns»
+
+' AlertFactory
+AlertFactory ..> FraudAlert  : «creates»
+
+' Security
+LoginThrottle  ..> User         : «checks account»
+TOTPManager    ..> User         : «reads/writes totp_secret»
+InputSanitiser ..> Transaction  : «validates inputs»
+
+note top of FraudDetector
+  **FRAUD DECISION SEQUENCE**
+  1. OFAC pre-screen (fail-closed)
+  2. Age restriction: 18 ≤ age ≤ 100
+  3. Rule evaluation → rule_score (×0.40)
+  4. ML anomaly score (×0.60)
+  5. combined = rule×0.40 + ml×0.60
+  6. combined ≥ 0.75 → BLOCKED
+     combined ≥ 0.50 → FLAGGED
+     combined < 0.50 → APPROVED
+  7. Persist RiskScore + FraudAlert(s)
+end note
+
+note right of MLPredictor
+  **FEATURE ENGINEERING**
+  14-dimensional feature vector:
+  • Normalised transaction amount
+  • Hour of day, day of week
+  • Weekend flag
+  • Amount z-score vs. customer avg
+  • Tx count last 1h / 24h
+  • Amount / avg ratio
+  • High-risk country flag
+  • New device flag
+  • Round amount flag
+  • Customer risk level (encoded)
+  • Card type (encoded)
+  • Transaction type (encoded)
+end note
+
+note bottom of OFACService
+  **FAIL-CLOSED POLICY**
+  If SDN service is unavailable
+  or throws an error, the system
+  defaults to BLOCKING the
+  transaction. Never fails open.
+end note
+
+@enduml
